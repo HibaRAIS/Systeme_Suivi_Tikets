@@ -1,0 +1,22 @@
+# Remove 'version' since it's obsolete
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ticketsystem-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ticketsystem
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./ticketsystem.sql:/docker-entrypoint-initdb.d/ticketsystem.sql
+      - mysql-data:/var/lib/mysql
+    networks:
+      - ticket-network
+
+networks:
+  ticket-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
