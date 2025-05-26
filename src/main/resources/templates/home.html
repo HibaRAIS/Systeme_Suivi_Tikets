@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Tracking System - IT Support Made Easy</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #444;
+            overflow-x: hidden;
+        }
+
+        /* Enhanced Navbar Styles */
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+            padding: 12px 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: #333;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-link {
+            color: #555;
+            font-weight: 500;
+            padding: 0.5rem 0.8rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        .nav-link.active {
+            color: #0d6efd;
+            font-weight: 600;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background-color: #0d6efd;
+            border-radius: 10px;
+        }
+
+        .navbar .btn {
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: none;
+        }
+
+        .navbar .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 992px) {
+            .navbar-nav {
+                margin: 1rem 0;
+            }
+            .navbar .btn {
+                margin: 0.5rem 0;
+                width: 100%;
+            }
+            .nav-link.active::after {
+                width: 30px;
+                left: 10px;
+                transform: none;
+            }
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #0143a3, #0d6efd);
+            color: white;
+            padding: 7rem 0 5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 45%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.05);
+            clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 0% 100%);
+        }
+
+        .hero-title {
+            font-weight: 700;
+            font-size: 3.2rem;
+            line-height: 1.2;
+        }
+
+        .hero-text {
+            font-weight: 400;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .hero-btn {
+            padding: 0.8rem 1.8rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .hero-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Feature Section */
+        .feature-section {
+            padding: 6rem 0;
+            background-color: #f9fbfd;
+        }
+
+        .section-title {
+            position: relative;
+            margin-bottom: 3rem;
+            font-weight: 700;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: -15px;
+            width: 50px;
+            height: 4px;
+            background-color: #0d6efd;
+            border-radius: 10px;
+        }
+
+        .feature-icon {
+            width: 4.5rem;
+            height: 4.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            background-color: #e7f1ff;
+            color: #0d6efd;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.1);
+        }
+
+        .feature-card {
+            padding: 2rem;
+            border-radius: 12px;
+            background-color: white;
+            transition: all 0.3s ease;
+            border: none;
+            height: 100%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card:hover .feature-icon {
+            background-color: #0d6efd;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Testimonials */
+        .testimonial-section {
+            padding: 6rem 0;
+            background-color: white;
+        }
+
+        .testimonial-card {
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .testimonial-avatar {
+            width: 4.5rem;
+            height: 4.5rem;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #e7f1ff;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, #f5f7fa, #e7f1ff);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #212529;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-title {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: block;
+            margin-bottom: 0.7rem;
+        }
+
+        .footer-link:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background-color: #0d6efd;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+<!-- Enhanced Navigation -->
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <i class="bi bi-kanban me-2 fs-3 text-primary"></i>
+            <span class="fw-bold fs-4">Ticket Tracking System</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item mx-2">
+                    <a class="nav-link active fw-medium" href="/">
+                        <i class="bi bi-house me-1"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item mx-2">
+                    <a class="nav-link fw-medium" href="/features">
+                        <i class="bi bi-gear me-1"></i> Features
+                    </a>
+                </li>
+                <li class="nav-item mx-2">
+                    <a class="nav-link fw-medium" href="/pricing">
+                        <i class="bi bi-tag me-1"></i> Pricing
+                    </a>
+                </li>
+                <li class="nav-item mx-2">
+                    <a class="nav-link fw-medium" href="/contact">
+                        <i class="bi bi-envelope me-1"></i> Contact
+                    </a>
+                </li>
+            </ul>
+            <div class="d-flex">
+                <a href="/auth/login" class="btn btn-outline-primary me-2 px-4">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                </a>
+                <a href="/auth/register" class="btn btn-primary px-4">
+                    <i class="bi bi-person-plus me-1"></i> Sign Up
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <h1 class="hero-title mb-4" th:text="${message != null ? message : 'Streamline Your IT Support Process'}">Streamline Your IT Support Process</h1>
+                <p class="hero-text mb-5">Simplify ticket management, improve response times, and deliver excellent customer service with our comprehensive tracking system.</p>
+                <div class="d-grid gap-3 d-sm-flex">
+                    <a href="/auth/register" class="btn btn-light hero-btn">
+                        <i class="bi bi-rocket me-2"></i>Get Started
+                    </a>
+                    <a href="/demo" class="btn btn-outline-light hero-btn">
+                        <i class="bi bi-play-circle me-2"></i>Watch Demo
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block text-center">
+                <img src="/images/hero-illustration.svg" alt="Ticket Tracking System" class="img-fluid" style="max-width: 90%;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Feature Section -->
+<section class="feature-section">
+    <div class="container">
+        <h2 class="text-center section-title">Powerful Features</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-ticket-perforated"></i>
+                    </div>
+                    <h5 class="mb-3">Ticket Management</h5>
+                    <p class="text-muted">Easily create, assign, and track tickets through their entire lifecycle.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <h5 class="mb-3">Analytics Dashboard</h5>
+                    <p class="text-muted">Gain insights with powerful reporting and data visualization tools.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-bell"></i>
+                    </div>
+                    <h5 class="mb-3">Smart Notifications</h5>
+                    <p class="text-muted">Stay updated with real-time alerts and automated notifications.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h5 class="mb-3">Team Collaboration</h5>
+                    <p class="text-muted">Work together efficiently with integrated communication tools.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonial Section -->
+<section class="testimonial-section">
+    <div class="container">
+        <h2 class="text-center section-title">What Our Clients Say</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="testimonial-card">
+                    <div class="d-flex align-items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Client" class="testimonial-avatar me-3">
+                        <div>
+                            <h6 class="mb-1 fw-bold">Sarah Johnson</h6>
+                            <p class="small text-muted mb-0">IT Manager, TechCorp</p>
+                        </div>
+                    </div>
+                    <p class="mb-0 text-muted">
+                        "Implementing this ticket tracking system has reduced our response time by 40% and dramatically improved customer satisfaction."
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="testimonial-card">
+                    <div class="d-flex align-items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/men/44.jpg" alt="Client" class="testimonial-avatar me-3">
+                        <div>
+                            <h6 class="mb-1 fw-bold">Michael Chen</h6>
+                            <p class="small text-muted mb-0">Support Lead, Innovate Inc.</p>
+                        </div>
+                    </div>
+                    <p class="mb-0 text-muted">
+                        "The analytics features have given us valuable insights to optimize our workflow and allocate resources effectively."
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="testimonial-card">
+                    <div class="d-flex align-items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Client" class="testimonial-avatar me-3">
+                        <div>
+                            <h6 class="mb-1 fw-bold">Emily Rodriguez</h6>
+                            <p class="small text-muted mb-0">CTO, Global Solutions</p>
+                        </div>
+                    </div>
+                    <p class="mb-0 text-muted">
+                        "Easy to use, highly customizable, and excellent customer support. This system has transformed how we handle IT requests."
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container text-center">
+        <h2 class="mb-4 fw-bold">Ready to streamline your IT support?</h2>
+        <p class="mb-5 lead">Join thousands of satisfied customers who have improved their support processes.</p>
+        <a href="/auth/register" class="btn btn-primary btn-lg px-5 py-3">
+            <i class="bi bi-lightning me-2"></i>Get Started Now
+        </a>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer mt-auto">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-kanban me-2 fs-3 text-primary"></i>
+                    <span class="fw-bold fs-4 text-white">Ticket Tracking System</span>
+                </div>
+                <p class="mb-4">Providing innovative solutions for IT support teams to manage and resolve customer issues efficiently.</p>
+                <div class="d-flex">
+                    <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-2">
+                <h5 class="footer-title">Company</h5>
+                <a href="/about" class="footer-link">About Us</a>
+                <a href="/careers" class="footer-link">Careers</a>
+                <a href="/blog" class="footer-link">Blog</a>
+                <a href="/press" class="footer-link">Press</a>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-2">
+                <h5 class="footer-title">Product</h5>
+                <a href="/features" class="footer-link">Features</a>
+                <a href="/pricing" class="footer-link">Pricing</a>
+                <a href="/security" class="footer-link">Security</a>
+                <a href="/roadmap" class="footer-link">Roadmap</a>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-2">
+                <h5 class="footer-title">Resources</h5>
+                <a href="/documentation" class="footer-link">Documentation</a>
+                <a href="/guides" class="footer-link">Guides</a>
+                <a href="/webinars" class="footer-link">Webinars</a>
+                <a href="/api" class="footer-link">API</a>
+            </div>
+            <div class="col-sm-6 col-lg-2">
+                <h5 class="footer-title">Support</h5>
+                <a href="/help" class="footer-link">Help Center</a>
+                <a href="/contact" class="footer-link">Contact Us</a>
+                <a href="/status" class="footer-link">System Status</a>
+                <a href="/community" class="footer-link">Community</a>
+            </div>
+        </div>
+        <hr class="mt-5 mb-4" style="border-color: rgba(255,255,255,0.1);">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                <p class="small mb-0">&copy; 2025 Ticket Tracking System. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <a href="/terms" class="small me-3 text-decoration-none footer-link">Terms of Service</a>
+                <a href="/privacy" class="small text-decoration-none footer-link">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
