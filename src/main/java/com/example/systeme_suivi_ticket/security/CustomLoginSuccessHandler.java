@@ -1,42 +1,40 @@
 package com.example.systeme_suivi_ticket.security;
 
 import java.io.IOException;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User; // Spring Security's built-in User
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.stereotype.Component;
+import java.util.Collection; // Import Collection
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@Component
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority; // Import GrantedAuthority
+// import org.springframework.security.core.userdetails.User; // Spring Security's built-in User - not needed if checking authorities directly
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+
+@Component // Ensure this is a Spring component
 public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException, ServletException {
+										Authentication authentication) throws IOException, ServletException {
 
-		User springSecurityUser = (User) authentication.getPrincipal();
+		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
-		// If you're using the default 'User', you typically only get username +
-		// authorities,
-		// not a custom 'roleId'.
-		// So you'd have to base your redirect on the authorities themselves:
-		// e.g. "ROLE_ADMINISTRATOR", "ROLE_TECHNICIAN", "ROLE_USER"
-
-		boolean isAdmin = springSecurityUser.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRATOR"));
-		boolean isTechnician = springSecurityUser.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_TECHNICIAN"));
+		boolean isAdmin = authorities.stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRATOR")); // Matches CustomUserDetailsService
+		boolean isTechnician = authorities.stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_TECHNICIAN")); // Matches CustomUserDetailsService
+		// boolean isUser = authorities.stream() // Not strictly needed if it's the default
+		// .anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
 
 		if (isAdmin) {
 			response.sendRedirect("/admin/dashboard");
 		} else if (isTechnician) {
-			response.sendRedirect("/technician/dashboard");
-		} else {
-			response.sendRedirect("/user/dashboard");
+			response.sendRedirect("/technician/Dashboard.html"); // Or /technician/dashboard if you have a controller mapping
+		} else { // Default to user dashboard
+			response.sendRedirect("/user/Dashboard.html"); // Or /user/dashboard
 		}
 	}
 }

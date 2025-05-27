@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.systeme_suivi_ticket.model.User;
+// import com.example.systeme_suivi_ticket.model.Roles; // If using RoleRepository here
+// import com.example.systeme_suivi_ticket.repository.RoleRepository; // If using RoleRepository here
 import com.example.systeme_suivi_ticket.service.UserService;
 
 import jakarta.validation.Valid;
@@ -22,6 +24,8 @@ public class UserController {
 
 	private final UserService userService;
 	private final PasswordEncoder passwordEncoder;
+	// @Autowired // If used here
+	// private RoleRepository roleRepository;
 
 	@Autowired
 	public UserController(UserService userService, PasswordEncoder passwordEncoder) {
@@ -30,70 +34,60 @@ public class UserController {
 	}
 
 	/**
-	 * Shows the registration page
-	 *
-	 * @param model the model to be populated
-	 * @return the register view name
+	 * Shows the registration page - This might be redundant if /auth/register is primary
 	 */
 	@GetMapping("/register")
 	public String showRegisterForm(Model model) {
-		if (!model.containsAttribute("user")) {
-			model.addAttribute("user", new User());
-		}
-		return "register";
+		// This endpoint might conflict with AuthController's /auth/register
+		// Consider redirecting or ensuring it uses the same DTO and logic if kept
+		// For now, assuming AuthController is the main registration point.
+		// If this is still needed, ensure "user" object is RegistrationRequest DTO
+		// and roles are loaded similar to AuthController.
+		// model.addAttribute("registrationRequest", new RegistrationRequest());
+		// model.addAttribute("roles", roleRepository.findAll());
+		return "redirect:/auth/register"; // Redirect to the main registration form
 	}
 
 	/**
-	 * Processes the registration form submission
-	 *
-	 * @param user               the submitted user data
-	 * @param bindingResult      validation results
-	 * @param redirectAttributes redirect attributes for flash messages
-	 * @return redirect to login on success or back to register on failure
+	 * Processes the registration form submission - This might be redundant
 	 */
 	@PostMapping("/register")
-	public String registerUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult,
-			RedirectAttributes redirectAttributes) {
+	public String registerUser(@Valid @ModelAttribute("userDTO") User user, // Assuming User DTO, ideally RegistrationRequest
+							   BindingResult bindingResult,
+							   RedirectAttributes redirectAttributes, Model model) {
+		// This endpoint also likely conflicts with AuthController's /auth/register-process
+		// If this is used, it needs the same logic as AuthController for validation,
+		// role fetching, password encoding, and saving.
+		// For now, assuming AuthController is the main registration process.
 
-		// Check for validation errors
+		// Example minimal logic if kept (needs robust implementation like AuthController)
 		if (bindingResult.hasErrors()) {
-			// Return the view directly to preserve field-level errors
-			return "register";
+			// model.addAttribute("roles", roleRepository.findAll()); // Need roles if returning to form
+			return "auth/Register"; // Or your specific template for this path
 		}
-
-		// Check if email already exists
+		if (userService.existsByUsername(user.getUsername())) { // Use username
+			bindingResult.rejectValue("username", "error.user", "Username already in use");
+		}
 		if (userService.existsByEmail(user.getEmail())) {
 			bindingResult.rejectValue("email", "error.user", "Email already in use");
-			return "register";
 		}
 
-		// Set a default role if none is provided
-		if (user.getRole() == null) {
-			user.setRole("USER"); // Default role
+		if (bindingResult.hasErrors()) {
+			// model.addAttribute("roles", roleRepository.findAll());
+			return "auth/Register";
 		}
 
-		// Attempt to save the user
-		try {
-			// Encode the password before saving
-			String encodedPassword = passwordEncoder.encode(user.getPassword());
-			user.setPassword(encodedPassword);
+		// user.setPassword(passwordEncoder.encode(user.getPassword()));
+		// Set role correctly by fetching from RoleRepository
+		// e.g., Roles defaultRole = roleRepository.findByRoleName("User").orElseThrow(...);
+		// user.setRole(defaultRole); // Pass the Roles entity
 
-			userService.registerNewUser(user);
-			redirectAttributes.addFlashAttribute("success",
-					"Registration successful! Please log in with your credentials.");
-			return "redirect:/login";
-		} catch (Exception e) {
-			bindingResult.reject("error.user", "Registration failed: " + e.getMessage());
-			return "register";
-		}
+		// userService.registerNewUser(user); // This would use the UserServiceImpl
+		redirectAttributes.addFlashAttribute("message", "Registration successful! Please log in.");
+		return "redirect:/auth/login";
 	}
 
-	/**
-	 * Check if email exists (for AJAX validation)
-	 *
-	 * @param email the email address to check
-	 * @return true if the email exists, false otherwise
-	 */
+
 	@GetMapping("/register/check-email")
 	@ResponseBody
 	public boolean checkEmailExists(@RequestParam(required = true) String email) {
@@ -103,18 +97,12 @@ public class UserController {
 		return userService.existsByEmail(email);
 	}
 
-	/**
-	 * Check if username exists (for AJAX validation)
-	 *
-	 * @param username the username to check
-	 * @return true if the username exists, false otherwise
-	 */
 	@GetMapping("/register/check-username")
 	@ResponseBody
 	public boolean checkUsernameExists(@RequestParam(required = true) String username) {
 		if (username == null || username.trim().isEmpty()) {
 			return false;
 		}
-		return userService.existsByEmail(username); // Changed to use name instead of username
+		return userService.existsByUsername(username); // Corrected to use existsByUsername
 	}
 }

@@ -8,15 +8,14 @@ COPY settings.gradle .
 COPY src src
 
 RUN chmod +x gradlew
-RUN ./gradlew build -x test
-RUN ls -la build/libs/
+RUN ./gradlew build -x test --stacktrace
 
 FROM eclipse-temurin:21-jre
 VOLUME /tmp
 WORKDIR /app
 
-# Directly copy the JAR file instead of extracting it
+# Directly copy the JAR file
 COPY --from=build /workspace/app/build/libs/*.jar app.jar
 
-# Use the simpler approach of running the JAR directly
+# Run the application
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

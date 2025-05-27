@@ -18,13 +18,13 @@ public class User {
 	@Column(name = "user_id")
 	private Long id;
 
-	@Column(name = "username")
+	@Column(name = "username", nullable = false, unique = true) // Added constraints
 	private String username;
 
-	@Column(name = "email")
+	@Column(name = "email", nullable = false, unique = true) // Added constraints
 	private String email;
 
-	@Column(name = "password")
+	@Column(name = "password", nullable = false)
 	private String password;
 
 	@Column(name = "first_name")
@@ -34,7 +34,7 @@ public class User {
 	private String lastName;
 
 	@ManyToOne
-	@JoinColumn(name = "role_id")
+	@JoinColumn(name = "role_id", nullable = false) // Role should not be nullable
 	private Roles role;
 
 	// Standard getters and setters
@@ -91,18 +91,10 @@ public class User {
 		return role;
 	}
 
-	// Existing setter for Roles
+	// Setter for Roles (expects a managed Roles entity)
 	public void setRole(Roles role) {
 		this.role = role;
 	}
 
-	// Helper setter that accepts a String (for default role assignment)
-	public void setRole(String roleName) {
-		// In a real scenario, retrieve the Roles instance from the database.
-		// Here we create a new instance as a placeholder.
-		Roles defaultRole = new Roles();
-		defaultRole.setRoleName(roleName);
-		this.role = defaultRole;
-	}
-
+	// REMOVED: public void setRole(String roleName)
 }

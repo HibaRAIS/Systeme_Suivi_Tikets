@@ -1,54 +1,82 @@
 package com.example.systeme_suivi_ticket.controller;
 
+import com.example.systeme_suivi_ticket.dto.RegistrationRequest;
+import com.example.systeme_suivi_ticket.model.User;
+import com.example.systeme_suivi_ticket.model.Roles; // Import Roles
+import com.example.systeme_suivi_ticket.repository.RoleRepository;
+import com.example.systeme_suivi_ticket.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult; // Import BindingResult
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes; // Import RedirectAttributes
 
-import com.example.systeme_suivi_ticket.dto.RegistrationRequest;
-import com.example.systeme_suivi_ticket.model.User;
-import com.example.systeme_suivi_ticket.repository.RoleRepository;
-import com.example.systeme_suivi_ticket.repository.UserRepository;
+import jakarta.validation.Valid; // Import Valid
 
 @Controller
 public class AuthController {
 
+	@Autowired // Autowire UserRepository
 	private UserRepository userRepository;
 
+	@Autowired // Autowire RoleRepository
 	private RoleRepository roleRepository;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
 	@GetMapping("/auth/login")
-	public String login() {
-		return "auth/login";
+	public String login(Model model, @ModelAttribute("error") String error, @ModelAttribute("message") String message) {
+		// Add attributes to model if they are present from redirect
+		if (error != null && !error.isEmpty()) {
+			model.addAttribute("error", error);
+		}
+		if (message != null && !message.isEmpty()) {
+			model.addAttribute("message", message);
+		}
+		return "auth/Login"; // Ensure template name matches case
 	}
 
 	@GetMapping("/auth/register")
 	public String register(Model model) {
-		try {
+		if (!model.containsAttribute("registrationRequest")) {
 			model.addAttribute("registrationRequest", new RegistrationRequest());
-			model.addAttribute("roles", roleRepository.findAll());
-			return "auth/register";
-		} catch (Exception e) {
-			model.addAttribute("error", "Unable to load registration form. Please try again later.");
-			return "error";
 		}
+		try {
+			model.addAttribute("roles", roleRepository.findAll());
+		} catch (Exception e) {
+			// Log the exception e
+			model.addAttribute("error", "Unable to load roles for registration form. Please try again later.");
+			// Optionally, redirect to an error page or return the register page with fewer options
+		}
+		return "auth/Register"; // Ensure template name matches case
 	}
 
 	@PostMapping("/auth/register-process")
-	public String registerProcess(@ModelAttribute RegistrationRequest registrationRequest, Model model) {
-		try {
-			if (userRepository.existsByEmail(registrationRequest.getEmail())) {
-				model.addAttribute("error", "Email already in use.");
-				model.addAttribute("roles", roleRepository.findAll());
-				return "auth/register";
-			}
+	public String registerProcess(@Valid @ModelAttribute("registrationRequest") RegistrationRequest registrationRequest,
+								  BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("roles", roleRepository.findAll()); // Reload roles for the form
+			return "auth/Register";
+		}
 
+		if (userRepository.existsByUsername(registrationRequest.getUsername())) {
+			bindingResult.rejectValue("username", "error.user", "Username already in use.");
+		}
+		if (userRepository.existsByEmail(registrationRequest.getEmail())) {
+			bindingResult.rejectValue("email", "error.user", "Email already in use.");
+		}
+
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("roles", roleRepository.findAll());
+			return "auth/Register";
+		}
+
+		try {
 			User user = new User();
 			user.setUsername(registrationRequest.getUsername());
 			user.setEmail(registrationRequest.getEmail());
@@ -56,24 +84,28 @@ public class AuthController {
 			user.setFirstName(registrationRequest.getFirstName());
 			user.setLastName(registrationRequest.getLastName());
 
-			// Convert Long to Integer using intValue() to match the repository's type
-			if (registrationRequest.getRoleId() != null) {
-				roleRepository.findById(registrationRequest.getRoleId().intValue()).ifPresent(user::setRole);
+			Long roleId = registrationRequest.getRoleId();
+			Roles assignedRole;
+			if (roleId != null) {
+				assignedRole = roleRepository.findById(roleId)
+						.orElseThrow(() -> new RuntimeException("Error: Selected role not found."));
 			} else {
-				// Handle setting default role appropriately (casting may be needed if
-				// User#setRole expects a Role)
-				// For example, get default role from repository or use a constant
-				user.setRole("USER");
+				// Default to "USER" role (assuming ID 2L is 'USER', or find by name)
+				assignedRole = roleRepository.findByRoleName("User") // Or "USER" depending on SQL data
+						.orElseThrow(() -> new RuntimeException("Error: Default User role not found. Please ensure it exists in the database."));
 			}
+			user.setRole(assignedRole);
 
 			userRepository.save(user);
-			model.addAttribute("message", "Registration successful. Please log in.");
-			return "auth/login";
+			redirectAttributes.addFlashAttribute("message", "Registration successful. Please log in.");
+			return "redirect:/auth/login";
+
 		} catch (Exception e) {
-			model.addAttribute("error", "Registration failed. Please try again later.");
-			model.addAttribute("roles", roleRepository.findAll());
-			return "auth/register";
+			// Log the exception e
+			redirectAttributes.addFlashAttribute("error", "Registration failed: " + e.getMessage());
+			// Add registrationRequest back to flash attributes to repopulate form on redirect
+			redirectAttributes.addFlashAttribute("registrationRequest", registrationRequest);
+			return "redirect:/auth/register"; // Redirect to avoid form resubmission issues
 		}
 	}
-
 }
