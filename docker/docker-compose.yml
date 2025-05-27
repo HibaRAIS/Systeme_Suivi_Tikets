@@ -1,5 +1,23 @@
-# Remove 'version' since it's obsolete
 services:
+  app:
+    build: ..
+    container_name: ticketsystem-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql: # Changed from a list to an object for service condition
+        condition: service_healthy # Wait for MySQL to be healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ticketsystem
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      # Add a delay to give MySQL more time, or use a proper wait-for-it script
+      # For example, you could add Spring Boot retry properties in application.properties
+      # Or a small startup delay if really needed, though healthcheck is better:
+      # JAVA_OPTS: "-Dspring.datasource.hikari.connectionTimeout=30000 -Dspring.datasource.hikari.initializationFailTimeout=60000"
+    networks:
+      - ticket-network
+
   mysql:
     image: mysql:8.0
     container_name: ticketsystem-mysql
@@ -7,12 +25,18 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: ticketsystem
     ports:
-      - "3306:3306"
+      - "3306:3306" # This is the port your app connects to on the 'mysql' hostname
     volumes:
       - ./ticketsystem.sql:/docker-entrypoint-initdb.d/ticketsystem.sql
       - mysql-data:/var/lib/mysql
     networks:
       - ticket-network
+    healthcheck: # Added healthcheck
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u$$MYSQL_USER", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s # Give MySQL time to initialize before first healthcheck
 
 networks:
   ticket-network:
