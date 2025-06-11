@@ -34,7 +34,8 @@ public class UserController {
 	}
 
 	/**
-	 * Shows the registration page - This might be redundant if /auth/register is primary
+	 * Shows the registration page - This might be redundant if /auth/register is
+	 * primary
 	 */
 	@GetMapping("/register")
 	public String showRegisterForm(Model model) {
@@ -52,17 +53,20 @@ public class UserController {
 	 * Processes the registration form submission - This might be redundant
 	 */
 	@PostMapping("/register")
-	public String registerUser(@Valid @ModelAttribute("userDTO") User user, // Assuming User DTO, ideally RegistrationRequest
-							   BindingResult bindingResult,
-							   RedirectAttributes redirectAttributes, Model model) {
-		// This endpoint also likely conflicts with AuthController's /auth/register-process
+	public String registerUser(@Valid @ModelAttribute("userDTO") User user, // Assuming User DTO, ideally
+																			// RegistrationRequest
+			BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
+		// This endpoint also likely conflicts with AuthController's
+		// /auth/register-process
 		// If this is used, it needs the same logic as AuthController for validation,
 		// role fetching, password encoding, and saving.
 		// For now, assuming AuthController is the main registration process.
 
-		// Example minimal logic if kept (needs robust implementation like AuthController)
+		// Example minimal logic if kept (needs robust implementation like
+		// AuthController)
 		if (bindingResult.hasErrors()) {
-			// model.addAttribute("roles", roleRepository.findAll()); // Need roles if returning to form
+			// model.addAttribute("roles", roleRepository.findAll()); // Need roles if
+			// returning to form
 			return "auth/Register"; // Or your specific template for this path
 		}
 		if (userService.existsByUsername(user.getUsername())) { // Use username
@@ -79,14 +83,14 @@ public class UserController {
 
 		// user.setPassword(passwordEncoder.encode(user.getPassword()));
 		// Set role correctly by fetching from RoleRepository
-		// e.g., Roles defaultRole = roleRepository.findByRoleName("User").orElseThrow(...);
+		// e.g., Roles defaultRole =
+		// roleRepository.findByRoleName("User").orElseThrow(...);
 		// user.setRole(defaultRole); // Pass the Roles entity
 
 		// userService.registerNewUser(user); // This would use the UserServiceImpl
 		redirectAttributes.addFlashAttribute("message", "Registration successful! Please log in.");
 		return "redirect:/auth/login";
 	}
-
 
 	@GetMapping("/register/check-email")
 	@ResponseBody
@@ -104,5 +108,10 @@ public class UserController {
 			return false;
 		}
 		return userService.existsByUsername(username); // Corrected to use existsByUsername
+	}
+
+	@GetMapping("/user/dashboard")
+	public String showUserDashboard() {
+		return "user/Dashboard";
 	}
 }
