@@ -1,11 +1,8 @@
 package com.example.systeme_suivi_ticket.controller;
 
-import com.example.systeme_suivi_ticket.dto.TicketStatusChartData;
-import com.example.systeme_suivi_ticket.model.Ticket;
-import com.example.systeme_suivi_ticket.repository.TicketPriorityRepository;
-import com.example.systeme_suivi_ticket.repository.TicketTypeRepository;
-import com.example.systeme_suivi_ticket.service.DashboardService;
-import com.example.systeme_suivi_ticket.service.TicketService;
+import java.security.Principal;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -18,15 +15,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.systeme_suivi_ticket.dto.TicketStatusChartData;
+import com.example.systeme_suivi_ticket.model.Ticket;
 import com.example.systeme_suivi_ticket.model.User;
+import com.example.systeme_suivi_ticket.repository.TicketPriorityRepository;
+import com.example.systeme_suivi_ticket.repository.TicketTypeRepository;
+import com.example.systeme_suivi_ticket.service.DashboardService;
+import com.example.systeme_suivi_ticket.service.TicketService;
 // import com.example.systeme_suivi_ticket.model.Roles; // If using RoleRepository here
 // import com.example.systeme_suivi_ticket.repository.RoleRepository; // If using RoleRepository here
 import com.example.systeme_suivi_ticket.service.UserService;
 
 import jakarta.validation.Valid;
-
-import java.security.Principal;
-import java.util.List;
 
 @Controller
 public class UserController {
@@ -38,11 +38,10 @@ public class UserController {
 	private TicketPriorityRepository ticketPriorityRepository;
 	private TicketTypeRepository ticketTypeRepository;
 
-
 	@Autowired
 	public UserController(UserService userService, PasswordEncoder passwordEncoder, DashboardService dashboardService,
-						  TicketService ticketService, TicketPriorityRepository ticketPriorityRepository,
-						  TicketTypeRepository ticketTypeRepository) {
+			TicketService ticketService, TicketPriorityRepository ticketPriorityRepository,
+			TicketTypeRepository ticketTypeRepository) {
 		this.userService = userService;
 		this.passwordEncoder = passwordEncoder;
 		this.dashboardService = dashboardService;
@@ -143,7 +142,7 @@ public class UserController {
 		List<Ticket> tickets = dashboardService.getRecentTicketsForUser(user.getId());
 		model.addAttribute("tickets", tickets);
 
-		return "user/dashboard";
+		return "user/Dashboard";
 	}
 
 	@GetMapping("/user/tickets")
@@ -155,8 +154,7 @@ public class UserController {
 		model.addAttribute("statuses", ticketService.getAllStatuses());
 		List<Ticket> tickets = dashboardService.getAllTicketsByUserId(user.getId());
 		model.addAttribute("tickets", tickets);
-		return "user/tickets";
+		return "user/Tickets";
 	}
-
 
 }

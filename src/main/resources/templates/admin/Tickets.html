@@ -172,7 +172,7 @@
 <div class="d-flex">
     <!-- Sidebar Navigation -->
     <div id="sidebar" class="d-flex flex-column">
-        <a class="navbar-brand text-center border-bottom pb-3" href="dashboard.html">
+        <a class="navbar-brand text-center border-bottom pb-3" href="/admin/dashboard">
             <i class="bi bi-shield-lock me-2"></i>Admin Panel
         </a>
         <ul class="nav flex-column mt-3">
@@ -384,6 +384,11 @@
 
                                     <!-- Table Body -->
                                     <tbody id="tickets-list">
+                                    <tr th:if="${#lists.isEmpty(tickets)}">
+                                            <td colspan="8" class="text-center text-muted fw-bold py-4 px-3">
+                                                <i class="bi bi-search"></i> No matching tickets found.
+                                            </td>
+                                    </tr>
 
                                     <!-- Ticket Row (Dynamic) -->
                                     <tr th:each="ticket : ${tickets}">
@@ -1031,6 +1036,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
+</script>
+<script>
+    document.getElementById('logout-btn').addEventListener('click', function(event) {
+        event.preventDefault();
+        if (confirm("Are you sure you want to log out?")) {
+            window.location.href = "/logout";
+        }
+    });
 </script>
 </body>
 </html>
