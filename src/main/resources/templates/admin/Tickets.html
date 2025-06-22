@@ -493,21 +493,6 @@
                                     </tbody>
                                 </table>
                             </div>
-
-                            <!-- Pagination -->
-                            <nav aria-label="Tickets pagination" class="mt-4">
-                                <ul class="pagination justify-content-center" id="pagination">
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                                    </li>
-                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">Next</a>
-                                    </li>
-                                </ul>
-                            </nav>
                         </div>
                     </div>
                 </div>
@@ -523,6 +508,7 @@
     </div>
 </div>
 
+
 <!-- Create Ticket Modal -->
 <div class="modal fade" id="createTicketModal" tabindex="-1" aria-labelledby="createTicketModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -532,7 +518,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="create-ticket-form">
+                <form id="create-ticket-form" method="post" th:action="@{/admin/tickets/create}">
                     <div class="mb-3">
                         <label for="ticket-user" class="form-label">Create Ticket For</label>
                         <select class="form-select" id="ticket-user" name="createdById" required>
@@ -582,16 +568,15 @@
                             </select>
                         </div>
                     </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Ticket</button>
+                    </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="submit-ticket">Create Ticket</button>
             </div>
         </div>
     </div>
 </div>
-
 <!-- ========================================================================= -->
 <!-- EDIT TICKET MODAL -->
 <!-- ========================================================================= -->
@@ -940,33 +925,6 @@
         }
     });
 
-//create ticket and it works
-document.getElementById("submit-ticket").addEventListener("click", function () {
-    const form = document.getElementById("create-ticket-form");
-    const formData = new FormData(form);
-
-    fetch("/admin/tickets/create", {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams(formData)
-    })
-    .then(response => {
-        if (response.redirected) {
-            window.location.href = response.url;
-        } else if (response.ok) {
-            // Success without redirect
-            alert("Ticket created successfully!");
-        } else {
-            alert("Ticket creation failed.");
-        }
-    })
-    .catch(error => {
-        console.error("Error creating ticket:", error);
-        alert("An error occurred.");
-    });
-});
 
 //JavaScript to toggle date fields
 document.addEventListener('DOMContentLoaded', function () {

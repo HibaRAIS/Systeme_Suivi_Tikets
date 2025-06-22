@@ -302,8 +302,8 @@ public class TicketController {
 				keyword, startDateTime, endDateTime);
 
 		model.addAttribute("tickets", tickets);
-		model.addAttribute("users", userRepository.findByRole_RoleName("User"));
-		model.addAttribute("technicians", userRepository.findByRole_RoleName("Technicien"));
+		model.addAttribute("users", userRepository.findByRole_RoleName("USER"));
+		model.addAttribute("technicians", userRepository.findByRole_RoleName("TECHNICIAN"));
 		model.addAttribute("priorities", ticketPriorityRepository.findAll());
 		model.addAttribute("types", ticketTypeRepository.findAll());
 		model.addAttribute("statuses", ticketStatusRepository.findAll());
@@ -375,7 +375,7 @@ public class TicketController {
 		model.addAttribute("priorities", ticketPriorityRepository.findAll());
 		model.addAttribute("types", ticketTypeRepository.findAll());
 		model.addAttribute("users", userRepository.findAll());
-		model.addAttribute("technicians", userRepository.findByRole_RoleName("Technicien"));
+		model.addAttribute("technicians", userRepository.findByRole_RoleName("TECHNICIAN"));
 
 		// Return the main view. JavaScript will open the edit modal.
 		return "admin/Tickets";
