@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -177,30 +177,30 @@
         </a>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
-                <a class="nav-link" href="dashboard.html">
+                <a class="nav-link" href="/admin/dashboard">
                     <i class="bi bi-speedometer2"></i> Dashboard
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="users.html">
+                <a class="nav-link" href="/admin/users">
                     <i class="bi bi-people"></i> Users
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" href="tickets.html">
+                <a class="nav-link active" href="/admin/tickets">
                     <i class="bi bi-ticket-perforated"></i> Tickets
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="reports.html">
-                    <i class="bi bi-graph-up"></i> Reports
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="settings.html">
-                    <i class="bi bi-gear"></i> Settings
-                </a>
-            </li>
+            <!--<li class="nav-item">
+               <a class="nav-link" href="reports.html">
+                   <i class="bi bi-graph-up"></i> Reports
+               </a>
+           </li>
+           <li class="nav-item">
+               <a class="nav-link" href="settings.html">
+                   <i class="bi bi-gear"></i> Settings
+               </a>
+           </li>  -->
         </ul>
 
         <!-- User dropdown moved to bottom of sidebar -->
@@ -211,9 +211,9 @@
                     <span id="username">Admin</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-dark w-100">
-                    <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i> Profile</a></li>
+                    <!-- <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i> Profile</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="../user/dashboard.html"><i class="bi bi-arrows-angle-contract me-2"></i> User View</a></li>
+                    <li><a class="dropdown-item" href="../user/dashboard.html"><i class="bi bi-arrows-angle-contract me-2"></i> User View</a></li>  -->
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="#" id="logout-btn"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
                 </ul>
@@ -234,9 +234,9 @@
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTicketModal">
                         <i class="bi bi-plus-circle me-1"></i> Create Ticket
                     </button>
-                    <button type="button" class="btn btn-outline-primary ms-2">
+                    <!-- <button type="button" class="btn btn-outline-primary ms-2">
                         <i class="bi bi-download me-1"></i> Export
-                    </button>
+                    </button> -->
                 </div>
             </div>
 
@@ -248,60 +248,99 @@
                             <h5 class="mb-0">Advanced Filters</h5>
                         </div>
                         <div class="card-body">
-                            <form id="filter-form" class="row g-3">
+                            <form id="filter-form" method="get" action="/admin/tickets" class="row g-3">
+
+                                <!-- Status Filter -->
                                 <div class="col-md-2">
                                     <label for="status-filter" class="form-label">Status</label>
-                                    <select class="form-select" id="status-filter">
-                                        <option value="">All Statuses</option>
-                                        <option value="1">Open</option>
-                                        <option value="2">In Progress</option>
-                                        <option value="3">Resolved</option>
-                                        <option value="4">Closed</option>
+                                    <select class="form-select" id="status-filter" name="statusId">
+                                        <option value="" th:selected="${selectedStatusId == null}">All Statuses</option>
+                                        <option th:each="s : ${statuses}"
+                                                th:value="${s.statusId}"
+                                                th:text="${s.statusName}"
+                                                th:selected="${selectedStatusId != null and selectedStatusId == s.statusId}">
+                                        </option>
                                     </select>
                                 </div>
+
+                                <!-- Priority Filter -->
                                 <div class="col-md-2">
                                     <label for="priority-filter" class="form-label">Priority</label>
-                                    <select class="form-select" id="priority-filter">
-                                        <option value="">All Priorities</option>
-                                        <option value="1">Low</option>
-                                        <option value="2">Medium</option>
-                                        <option value="3">High</option>
+                                    <select class="form-select" id="priority-filter" name="priorityId">
+                                        <option value="" th:selected="${selectedPriorityId == null}">All Priorities</option>
+                                        <option th:each="p : ${priorities}"
+                                                th:value="${p.priorityId}"
+                                                th:text="${p.priorityName}"
+                                                th:selected="${selectedPriorityId != null and selectedPriorityId == p.priorityId}">
+                                        </option>
                                     </select>
                                 </div>
+
+                                <!-- Type Filter -->
                                 <div class="col-md-2">
                                     <label for="type-filter" class="form-label">Type</label>
-                                    <select class="form-select" id="type-filter">
-                                        <option value="">All Types</option>
-                                        <option value="1">Incident</option>
-                                        <option value="2">Request</option>
-                                        <option value="3">Question</option>
+                                    <select class="form-select" id="type-filter" name="typeId">
+                                        <option value="" th:selected="${selectedTypeId == null}">All Types</option>
+                                        <option th:each="t : ${types}"
+                                                th:value="${t.typeId}"
+                                                th:text="${t.typeName}"
+                                                th:selected="${selectedTypeId != null and selectedTypeId == t.typeId}">
+                                        </option>
                                     </select>
                                 </div>
+
+                                <!-- Assignee Filter -->
                                 <div class="col-md-2">
                                     <label for="assignee-filter" class="form-label">Assignee</label>
-                                    <select class="form-select" id="assignee-filter">
-                                        <option value="">All Assignees</option>
-                                        <option value="unassigned">Unassigned</option>
-                                        <!-- Will be populated dynamically with technicians -->
+                                    <select class="form-select" id="assignee-filter" name="assignedToId">
+                                        <option value="" th:selected="${selectedAssignedToId == null}">All Assignees</option>
+                                        <option value="0" th:selected="${selectedAssignedToId != null and selectedAssignedToId == 0}">Unassigned</option>
+                                        <option th:each="technician : ${technicians}"
+                                                th:value="${technician.id}"
+                                                th:text="${technician.username}"
+                                                th:selected="${selectedAssignedToId != null and selectedAssignedToId == technician.id}">
+                                        </option>
                                     </select>
                                 </div>
+
+                                <!-- Date Range Filter -->
                                 <div class="col-md-2">
                                     <label for="date-range" class="form-label">Date Range</label>
-                                    <select class="form-select" id="date-range">
-                                        <option value="">All Time</option>
-                                        <option value="today">Today</option>
-                                        <option value="week">This Week</option>
-                                        <option value="month">This Month</option>
-                                        <option value="custom">Custom Range</option>
+                                    <select class="form-select" id="date-range" name="dateRange">
+                                        <option value="" th:selected="${selectedDateRange == null}">All Time</option>
+                                        <option value="today" th:selected="${selectedDateRange == 'today'}">Today</option>
+                                        <option value="week" th:selected="${selectedDateRange == 'week'}">This Week</option>
+                                        <option value="month" th:selected="${selectedDateRange == 'month'}">This Month</option>
+                                        <option value="custom" th:selected="${selectedDateRange == 'custom'}">Custom Range</option>
                                     </select>
                                 </div>
+
+                                <!-- Start Date (Custom Range) -->
+                                <div class="col-md-2 custom-date-range" style="display: none;">
+                                    <label for="start-date" class="form-label">Start Date</label>
+                                    <input type="date" class="form-control" id="start-date" name="startDate" th:value="${selectedStartDate}">
+                                </div>
+
+                                <!-- End Date (Custom Range) -->
+                                <div class="col-md-2 custom-date-range" style="display: none;">
+                                    <label for="end-date" class="form-label">End Date</label>
+                                    <input type="date" class="form-control" id="end-date" name="endDate" th:value="${selectedEndDate}">
+                                </div>
+
+                                <!-- Search Field -->
                                 <div class="col-md-2">
                                     <label for="search-tickets" class="form-label">Search</label>
-                                    <input type="text" class="form-control" id="search-tickets" placeholder="Search tickets...">
+                                    <input type="text" class="form-control" id="search-tickets" name="keyword"
+                                           placeholder="Search tickets..." th:value="${selectedKeyword}">
                                 </div>
+
+                                <!-- Buttons -->
                                 <div class="col-12 mt-3">
                                     <button type="submit" class="btn btn-primary">Apply Filters</button>
-                                    <button type="button" id="clear-filters" class="btn btn-outline-secondary">Clear Filters</button>
+                                    <button type="reset" id="clear-filters" class="btn btn-outline-secondary"
+                                            onclick="window.location='/admin/tickets'; return false;">
+                                        Clear Filters
+                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -309,13 +348,27 @@
                 </div>
             </div>
 
-            <!-- Tickets Table -->
+
+            <!-- Tickets Table Section -->
             <div class="row">
                 <div class="col-md-12">
+
+                    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+                    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
                     <div class="card shadow-sm">
+
+                        <!-- Card Body -->
                         <div class="card-body">
+
+
+                            <!-- Responsive Table Container -->
                             <div class="table-responsive">
+
+                                <!-- Tickets Table -->
                                 <table class="table table-hover align-middle">
+
+                                    <!-- Table Header -->
                                     <thead>
                                     <tr>
                                         <th style="width: 5%">ID</th>
@@ -328,111 +381,106 @@
                                         <th style="width: 18%">Actions</th>
                                     </tr>
                                     </thead>
+
+                                    <!-- Table Body -->
                                     <tbody id="tickets-list">
-                                    <!-- Example tickets - these will be loaded dynamically -->
-                                    <tr>
-                                        <td>#1001</td>
-                                        <td>Unable to access email account</td>
-                                        <td><span class="badge badge-open">Open</span></td>
-                                        <td><span class="badge badge-high">High</span></td>
+
+                                    <!-- Ticket Row (Dynamic) -->
+                                    <tr th:each="ticket : ${tickets}">
+                                        <td th:text="${ticket.ticketId}"></td>
+                                        <td th:text="${ticket.title}"></td>
+
+                                        <!-- Badge de statut -->
+                                        <td>
+                                               <span th:switch="${ticket.status?.statusName}">
+                                            <span th:case="'Open'" class="badge badge-open">Open</span>
+                                            <span th:case="'In Progress'" class="badge badge-in-progress">In Progress</span>
+                                            <span th:case="'Resolved'" class="badge badge-resolved">Resolved</span>
+                                            <span th:case="'Closed'" class="badge badge-closed">Closed</span>
+                                            <span th:case="*"
+                                                  class="badge badge-secondary"
+                                                  th:text="${ticket.status?.statusName} ?: 'Unknown'">
+                                            </span>
+                                        </span>
+
+                                        </td>
+
+                                        <!-- Badge de priorité -->
+                                        <td>
+                                        <span th:switch="${ticket.priority?.priorityName}">
+                                        <span th:case="'High'" class="badge badge-high">High</span>
+                                        <span th:case="'Medium'" class="badge badge-medium">Medium</span>
+                                        <span th:case="'Low'" class="badge badge-low">Low</span>
+                                        <span th:case="*"
+                                              class="badge badge-secondary"
+                                              th:text="${ticket.priority?.priorityName} ?: 'Unknown'">
+                                        </span>
+                                        </span>
+
+                                        </td>
+
+                                        <!-- Créé par -->
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar bg-primary me-2">JD</div>
-                                                <span>John Doe</span>
+                                                <div class="avatar bg-primary me-2"
+                                                     th:text="${(ticket.createdBy?.firstName != null && ticket.createdBy?.lastName != null) ? (ticket.createdBy.firstName.substring(0, 1).toUpperCase() + ticket.createdBy.lastName.substring(0, 1).toUpperCase()) : '?'}">
+                                                </div>
+                                                <span th:text="${(ticket.createdBy?.firstName != null && ticket.createdBy?.lastName != null) ? (ticket.createdBy.firstName + ' ' + ticket.createdBy.lastName) : 'Unknown'}"></span>
                                             </div>
                                         </td>
+
+                                        <!-- Assigné à -->
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <span class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>Unassigned</span>
+                                                <div th:if="${ticket.assignedTo != null}"
+                                                     class="avatar bg-info me-2"
+                                                     th:text="${(ticket.assignedTo.firstName != null && ticket.assignedTo.lastName != null) ? (ticket.assignedTo.firstName.substring(0, 1).toUpperCase() + ticket.assignedTo.lastName.substring(0, 1).toUpperCase()) : '?'}">
+                                                </div>
+                                                <span th:if="${ticket.assignedTo != null}"
+                                                      th:text="${(ticket.assignedTo.firstName != null && ticket.assignedTo.lastName != null) ? (ticket.assignedTo.firstName + ' ' + ticket.assignedTo.lastName) : 'Unknown'}"></span>
+                                                <span th:unless="${ticket.assignedTo != null}" class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i> Unassigned</span>
                                             </div>
                                         </td>
-                                        <td>23 Mar 2025, 10:15 AM</td>
+
+                                        <!-- Date de création -->
+                                        <td th:text="${#temporals.format(ticket.createdAt, 'dd MMM yyyy, hh:mm a')}"></td>
+
+                                        <!-- Actions -->
                                         <td>
-                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assignTicketModal" data-ticket-id="1001">
+                                            <button class="btn btn-sm btn-primary"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#assignTicketModal"
+                                                    th:attr="data-ticket-id=${ticket.ticketId}">
                                                 <i class="bi bi-person-plus"></i> Assign
                                             </button>
-                                            <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal" data-ticket-id="1001">
+
+
+                                            <!-- <button class="btn btn-sm btn-info"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#ticketDetailsModal"
+                                                    th:attr="data-ticket-id=${ticket.ticketId}">
                                                 <i class="bi bi-eye"></i> View
-                                            </button>
+                                            </button> -->
+
                                             <div class="dropdown d-inline-block">
-                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                        type="button"
+                                                        data-bs-toggle="dropdown">
                                                     <i class="bi bi-three-dots"></i>
                                                 </button>
                                                 <ul class="dropdown-menu">
-                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Delete</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>#1002</td>
-                                        <td>Printer not working after Windows update</td>
-                                        <td><span class="badge badge-in-progress">In Progress</span></td>
-                                        <td><span class="badge badge-medium">Medium</span></td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar bg-success me-2">SS</div>
-                                                <span>Sarah Smith</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar bg-info me-2">TJ</div>
-                                                <span>Tom Johnson</span>
-                                            </div>
-                                        </td>
-                                        <td>22 Mar 2025, 09:30 AM</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assignTicketModal" data-ticket-id="1002">
-                                                <i class="bi bi-person-plus"></i> Reassign
-                                            </button>
-                                            <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal" data-ticket-id="1002">
-                                                <i class="bi bi-eye"></i> View
-                                            </button>
-                                            <div class="dropdown d-inline-block">
-                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                                    <i class="bi bi-three-dots"></i>
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Delete</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>#1003</td>
-                                        <td>New software installation request</td>
-                                        <td><span class="badge badge-resolved">Resolved</span></td>
-                                        <td><span class="badge badge-low">Low</span></td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar bg-warning me-2">RJ</div>
-                                                <span>Robert Jackson</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar bg-danger me-2">AL</div>
-                                                <span>Amy Lee</span>
-                                            </div>
-                                        </td>
-                                        <td>21 Mar 2025, 02:45 PM</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assignTicketModal" data-ticket-id="1003">
-                                                <i class="bi bi-person-plus"></i> Reassign
-                                            </button>
-                                            <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#ticketDetailsModal" data-ticket-id="1003">
-                                                <i class="bi bi-eye"></i> View
-                                            </button>
-                                            <div class="dropdown d-inline-block">
-                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                                    <i class="bi bi-three-dots"></i>
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Delete</a></li>
+                                                    <li>
+                                                        <a class="dropdown-item" th:href="@{'/tickets/edit/' + ${ticket.ticketId}}">
+                                                            <i class="bi bi-pencil me-2"></i> Edit
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item text-danger"
+                                                           th:href="@{'/tickets/delete/' + ${ticket.ticketId}}"
+                                                           onclick="return confirm('Are you sure you want to delete this ticket?');">
+                                                            <i class="bi bi-trash me-2"></i> Delete
+                                                        </a>
+                                                    </li>
                                                 </ul>
                                             </div>
                                         </td>
@@ -482,46 +530,50 @@
                 <form id="create-ticket-form">
                     <div class="mb-3">
                         <label for="ticket-user" class="form-label">Create Ticket For</label>
-                        <select class="form-select" id="ticket-user" required>
+                        <select class="form-select" id="ticket-user" name="createdById" required>
                             <option value="">Select User</option>
-                            <!-- Will be populated dynamically -->
-                            <option value="1">John Doe</option>
-                            <option value="2">Sarah Smith</option>
-                            <option value="3">Robert Jackson</option>
+                            <th:block th:each="user : ${users}">
+                                <option th:value="${user.id}"
+                                        th:text="${user.firstName} + ' ' + ${user.lastName}"></option>
+                            </th:block>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="ticket-title" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="ticket-title" required>
+                        <input type="text" class="form-control" id="ticket-title" name="title" required>
                     </div>
                     <div class="mb-3">
                         <label for="ticket-description" class="form-label">Description</label>
-                        <textarea class="form-control" id="ticket-description" rows="5" required></textarea>
+                        <textarea class="form-control" id="ticket-description" name="description" rows="4" required></textarea>
                     </div>
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label for="ticket-type" class="form-label">Type</label>
-                            <select class="form-select" id="ticket-type" required>
-                                <option value="1">Incident</option>
-                                <option value="2">Request</option>
-                                <option value="3">Question</option>
+                            <select class="form-select" id="ticket-type" name="typeId" required>
+                                <option value="">Select Type</option>
+                                <th:block th:each="t : ${types}">
+                                    <option th:value="${t.typeId}" th:text="${t.typeName}"></option>
+                                </th:block>
                             </select>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="ticket-priority" class="form-label">Priority</label>
-                            <select class="form-select" id="ticket-priority" required>
-                                <option value="1">Low</option>
-                                <option value="2" selected>Medium</option>
-                                <option value="3">High</option>
+                            <select class="form-select" id="ticket-priority" name="priorityId" required>
+                                <option value="">Select Priority</option>
+                                <th:block th:each="p : ${priorities}">
+                                    <option th:value="${p.priorityId}" th:text="${p.priorityName}"></option>
+                                </th:block>
                             </select>
+
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="ticket-assign" class="form-label">Assign To</label>
-                            <select class="form-select" id="ticket-assign">
+                            <select class="form-select" id="ticket-assign" name="assignedToUserId">
                                 <option value="">Unassigned</option>
-                                <!-- Will be populated dynamically with technicians -->
-                                <option value="5">Tom Johnson</option>
-                                <option value="8">Amy Lee</option>
+                                <th:block th:each="tech : ${technicians}">
+                                    <option th:value="${tech.id}"
+                                            th:text="${tech.firstName} + ' ' + ${tech.lastName}"></option>
+                                </th:block>
                             </select>
                         </div>
                     </div>
@@ -535,47 +587,133 @@
     </div>
 </div>
 
-<!-- Assign Ticket Modal -->
+<!-- ========================================================================= -->
+<!-- EDIT TICKET MODAL -->
+<!-- ========================================================================= -->
+<div th:if="${ticketToEdit}" class="modal fade" id="editTicketModal" tabindex="-1" aria-labelledby="editTicketModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Use th:object to bind the form to the ticketToEdit object -->
+            <form th:action="@{/tickets/edit}" th:object="${ticketToEdit}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTicketModalLabel">Edit Ticket #<span th:text="*{ticketId}"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Hidden input to send the ticket ID -->
+                    <input type="hidden" th:field="*{ticketId}" />
+                    <!-- CreatedBy and CreatedAt are not editable but good to show -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Created By:</strong>
+                            <span th:text="*{createdBy?.firstName + ' ' + createdBy?.lastName}">User</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Created At:</strong>
+                            <span th:text="${#temporals.format(ticketToEdit.createdAt, 'dd MMM yyyy, hh:mm a')}">Date</span>
+                        </div>
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label for="edit-ticket-title" class="form-label">Title</label>
+                        <!-- Use th:field to bind the input to the object's property -->
+                        <input type="text" class="form-control" id="edit-ticket-title" th:field="*{title}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit-ticket-description" class="form-label">Description</label>
+                        <textarea class="form-control" id="edit-ticket-description" rows="4" th:field="*{description}" required></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="edit-ticket-status" class="form-label">Status</label>
+                            <select class="form-select" id="edit-ticket-status" th:field="*{status.statusId}" required>
+                                <option th:each="s : ${statuses}"
+                                        th:value="${s.statusId}"
+                                        th:text="${s.statusName}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="edit-ticket-priority" class="form-label">Priority</label>
+                            <select class="form-select" id="edit-ticket-priority" th:field="*{priority.priorityId}" required>
+                                <option th:each="p : ${priorities}"
+                                        th:value="${p.priorityId}"
+                                        th:text="${p.priorityName}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="edit-ticket-type" class="form-label">Type</label>
+                            <select class="form-select" id="edit-ticket-type" th:field="*{type.typeId}" required>
+                                <option th:each="t : ${types}"
+                                        th:value="${t.typeId}"
+                                        th:text="${t.typeName}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="edit-ticket-assign" class="form-label">Assign To</label>
+                            <select class="form-select" id="edit-ticket-assign" th:field="*{assignedTo.id}">
+                                <option value="">Unassigned</option>
+                                <option th:each="tech : ${technicians}"
+                                        th:value="${tech.id}"
+                                        th:text="${tech.firstName + ' ' + tech.lastName}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Assign Ticket Modal  -->
 <div class="modal fade" id="assignTicketModal" tabindex="-1" aria-labelledby="assignTicketModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="assignTicketModalLabel">Assign Ticket #<span id="assign-ticket-id"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="assign-ticket-form">
-                    <input type="hidden" id="ticket-id-to-assign">
+            <!-- Formulaire classique qui sera soumis. th:action est correct. -->
+            <form id="assign-ticket-form" method="post" th:action="@{/tickets/assign-form}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignTicketModalLabel">Assign Ticket #<span id="assign-ticket-id-display"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Champ caché simple. Il a un 'id' pour être trouvé par JS et un 'name' pour être soumis. -->
+                    <input type="hidden" id="ticket-id-to-assign" name="ticketId" />
+
                     <div class="mb-3">
                         <label for="technician-select" class="form-label">Select Technician</label>
-                        <select class="form-select" id="technician-select" required>
-                            <option value="">Choose a technician</option>
-                            <!-- Will be populated dynamically -->
-                            <option value="5">Tom Johnson (2 active tickets)</option>
-                            <option value="8">Amy Lee (1 active ticket)</option>
-                            <option value="12">Michael Chen (4 active tickets)</option>
-                            <option value="15">Lisa Rodriguez (3 active tickets)</option>
+                        <select class="form-select" id="technician-select" name="technicianId" required>
+                            <option value="">Choose a technician...</option>
+                            <!-- Thymeleaf remplit les options, c'est parfait. -->
+                            <option th:each="tech : ${technicians}"
+                                    th:value="${tech.id}"
+                                    th:text="${tech.firstName} + ' ' + ${tech.lastName}"></option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="assignment-note" class="form-label">Assignment Note (optional)</label>
-                        <textarea class="form-control" id="assignment-note" rows="3" placeholder="Add a note for the technician..."></textarea>
+                        <textarea class="form-control" id="assignment-note" name="assignmentNote" rows="3"></textarea>
                     </div>
                     <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="notify-technician" checked>
-                        <label class="form-check-label" for="notify-technician">
-                            Send email notification to technician
-                        </label>
+                        <input class="form-check-input" type="checkbox" id="notify-technician" name="notifyTechnician" value="true" checked />
+                        <label class="form-check-label" for="notify-technician">Send email notification</label>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="confirm-assignment">Assign Ticket</button>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Assign Ticket</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
 
 <!-- Ticket Details Modal -->
 <div class="modal fade" id="ticketDetailsModal" tabindex="-1" aria-labelledby="ticketDetailsModalLabel" aria-hidden="true">
@@ -758,7 +896,7 @@
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+<script th:inline="javascript">
     // Simple script to populate ticket ID for assignment modal
     document.addEventListener('DOMContentLoaded', function() {
         // For assign ticket modal
@@ -796,6 +934,103 @@
             });
         }
     });
+
+//create ticket and it works
+document.getElementById("submit-ticket").addEventListener("click", function () {
+    const form = document.getElementById("create-ticket-form");
+    const formData = new FormData(form);
+
+    fetch("/admin/tickets/create", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams(formData)
+    })
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else if (response.ok) {
+            // Success without redirect
+            alert("Ticket created successfully!");
+        } else {
+            alert("Ticket creation failed.");
+        }
+    })
+    .catch(error => {
+        console.error("Error creating ticket:", error);
+        alert("An error occurred.");
+    });
+});
+
+//JavaScript to toggle date fields
+document.addEventListener('DOMContentLoaded', function () {
+                    const dateRangeSelect = document.getElementById('date-range');
+                    const customDateFields = document.querySelectorAll('.custom-date-range');
+
+                    function toggleCustomDateFields() {
+                        if (dateRangeSelect.value === 'custom') {
+                            customDateFields.forEach(el => el.style.display = 'block');
+                        } else {
+                            customDateFields.forEach(el => el.style.display = 'none');
+                        }
+                    }
+
+                    // Initial state
+                    toggleCustomDateFields();
+
+                    // On change
+                    dateRangeSelect.addEventListener('change', toggleCustomDateFields);
+                });
+
+//edit form for assigment
+ document.addEventListener('DOMContentLoaded', function() {
+
+        // --- Logique pour le modal d'assignation (Event-Driven) ---
+        // Cette partie s'exécute uniquement lorsqu'un modal d'assignation est ouvert.
+        const assignModalElement = document.getElementById('assignTicketModal');
+        if (assignModalElement) {
+            assignModalElement.addEventListener('show.bs.modal', function(event) {
+                // Le bouton qui a déclenché le modal
+                const button = event.relatedTarget;
+                if (!button) return; // Sécurité si le modal est ouvert sans bouton
+
+                // Lire l'ID du ticket depuis l'attribut data-* du bouton
+                const ticketId = button.getAttribute('data-ticket-id');
+
+                // Trouver les éléments à mettre à jour à l'intérieur du modal
+                const ticketIdInput = assignModalElement.querySelector('#ticket-id-to-assign');
+                const ticketIdDisplay = assignModalElement.querySelector('#assign-ticket-id-display');
+
+                // Mettre à jour les valeurs (l'étape qui résout votre problème)
+                if (ticketIdInput && ticketIdDisplay) {
+                    ticketIdInput.value = ticketId;
+                    ticketIdDisplay.textContent = ticketId;
+                }
+            });
+        }
+
+        // --- Logique pour le modal d'édition (Conditionnelle) ---
+        // Cette partie ne s'exécute que si Thymeleaf a rendu le modal d'édition.
+        // On récupère la variable passée par le serveur. Si elle n'existe pas, la variable sera 'null'.
+        const ticketToEdit = /*[[${ticketToEdit}]]*/ null;
+
+        // La condition 'if(ticketToEdit)' est la clé qui évite le conflit.
+        // Ce code ne s'exécutera QUE sur la page rechargée après un clic sur "Edit".
+        if(ticketToEdit) {
+            const editModalElement = document.getElementById('editTicketModal');
+            if(editModalElement) {
+                // On crée une nouvelle instance de l'objet Modal de Bootstrap et on l'affiche.
+                const editModal = new bootstrap.Modal(editModalElement);
+                editModal.show();
+            }
+        }
+
+        // Vous pouvez ajouter ici la logique pour vos autres modals (Create, Details, etc.)
+        // en suivant le même modèle : if (document.getElementById('...')) { ... }
+
+    });
+
 </script>
 </body>
 </html>

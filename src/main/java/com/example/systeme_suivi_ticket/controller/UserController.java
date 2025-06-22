@@ -1,5 +1,11 @@
 package com.example.systeme_suivi_ticket.controller;
 
+import com.example.systeme_suivi_ticket.dto.TicketStatusChartData;
+import com.example.systeme_suivi_ticket.model.Ticket;
+import com.example.systeme_suivi_ticket.repository.TicketPriorityRepository;
+import com.example.systeme_suivi_ticket.repository.TicketTypeRepository;
+import com.example.systeme_suivi_ticket.service.DashboardService;
+import com.example.systeme_suivi_ticket.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -19,18 +25,31 @@ import com.example.systeme_suivi_ticket.service.UserService;
 
 import jakarta.validation.Valid;
 
+import java.security.Principal;
+import java.util.List;
+
 @Controller
 public class UserController {
 
+	private DashboardService dashboardService;
+	private TicketService ticketService;
 	private final UserService userService;
 	private final PasswordEncoder passwordEncoder;
-	// @Autowired // If used here
-	// private RoleRepository roleRepository;
+	private TicketPriorityRepository ticketPriorityRepository;
+	private TicketTypeRepository ticketTypeRepository;
+
 
 	@Autowired
-	public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+	public UserController(UserService userService, PasswordEncoder passwordEncoder, DashboardService dashboardService,
+						  TicketService ticketService, TicketPriorityRepository ticketPriorityRepository,
+						  TicketTypeRepository ticketTypeRepository) {
 		this.userService = userService;
 		this.passwordEncoder = passwordEncoder;
+		this.dashboardService = dashboardService;
+		this.ticketService = ticketService;
+		this.ticketPriorityRepository = ticketPriorityRepository;
+		this.ticketTypeRepository = ticketTypeRepository;
+
 	}
 
 	/**
@@ -111,7 +130,33 @@ public class UserController {
 	}
 
 	@GetMapping("/user/dashboard")
-	public String showUserDashboard() {
-		return "user/Dashboard";
+	public String showUserDashboard(Model model, Principal principal) {
+		String username = principal.getName();
+		User user = dashboardService.getUserByUsername(username);
+
+		model.addAttribute("user", user);
+		List<TicketStatusChartData> chartData = dashboardService.getTicketStatusChartData(username);
+		long totalTickets = dashboardService.getTotalTicketCount(user.getId());
+		model.addAttribute("statusChartData", chartData);
+		model.addAttribute("totalTickets", totalTickets);
+
+		List<Ticket> tickets = dashboardService.getRecentTicketsForUser(user.getId());
+		model.addAttribute("tickets", tickets);
+
+		return "user/dashboard";
 	}
+
+	@GetMapping("/user/tickets")
+	public String showTickets(Model model, Principal principal) {
+		String username = principal.getName();
+		User user = dashboardService.getUserByUsername(username);
+		model.addAttribute("priorities", ticketPriorityRepository.findAll());
+		model.addAttribute("types", ticketTypeRepository.findAll());
+		model.addAttribute("statuses", ticketService.getAllStatuses());
+		List<Ticket> tickets = dashboardService.getAllTicketsByUserId(user.getId());
+		model.addAttribute("tickets", tickets);
+		return "user/tickets";
+	}
+
+
 }

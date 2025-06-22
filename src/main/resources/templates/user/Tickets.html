@@ -1,11 +1,15 @@
 <!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Support Ticket System - Tickets</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="css/styles.css" rel="stylesheet">
     <style>
         body {
@@ -90,29 +94,32 @@
         .dropdown-item:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
+
+     #tickets-list .badge {
+    font-weight: normal !important; /* 'normal' enlève le gras */
+}
     </style>
 </head>
 <body>
 <div class="d-flex">
     <!-- Sidebar Navigation -->
     <div id="sidebar" class="d-flex flex-column">
-        <a class="navbar-brand text-center border-bottom pb-3" href="dashboard.html">
-            <i class="bi bi-ticket-detailed-fill me-2"></i>IT Support
+        <a class="navbar-brand text-center border-bottom pb-3"
+           th:href="@{/user/dashboard}"> <i
+                class="bi bi-ticket-detailed-fill me-2"></i>IT Support
         </a>
         <ul class="nav flex-column mt-3">
-            <li class="nav-item">
-                <a class="nav-link" href="dashboard.html">
-                    <i class="bi bi-speedometer2"></i> Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="ticket.html">
-                    <i class="bi bi-ticket-perforated"></i> Tickets
-                </a>
-            </li>
+            <li class="nav-item"><a class="nav-link"
+                                    th:href="@{/user/dashboard}"> <i class="bi bi-speedometer2"></i>
+                Dashboard
+            </a></li>
+            <li class="nav-item"><a class="nav-link active" th:href="@{/user/tickets}"
+                                    href="ticket.html"> <i class="bi bi-ticket-perforated"></i>
+                Tickets
+            </a></li>
             <li class="nav-item" id="admin-nav-item" style="display: none;">
-                <a class="nav-link" href="users.html">
-                    <i class="bi bi-people"></i> Users
+                <a class="nav-link" href="users.html"> <i class="bi bi-people"></i>
+                    Users
                 </a>
             </li>
         </ul>
@@ -120,13 +127,15 @@
         <!-- User dropdown moved to bottom of sidebar -->
         <div class="mt-auto" id="user-dropdown">
             <div class="dropdown">
-                <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                    <i class="bi bi-person-circle me-2"></i>
-                    <span id="username">User</span>
+                <a
+                        class="nav-link dropdown-toggle text-white d-flex align-items-center"
+                        href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle me-2"></i> <span id="username">User</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-dark w-100">
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#" id="logout-btn"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                    <li><a class="dropdown-item" href="#" id="logout-btn"><i
+                            class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -138,7 +147,8 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark d-md-none">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">IT Support</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <button class="navbar-toggler" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
             </div>
@@ -151,12 +161,12 @@
                     <h2>Tickets</h2>
                 </div>
                 <div class="col-md-4 text-end">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTicketModal">
+                    <button type="button" class="btn btn-primary"
+                            data-bs-toggle="modal" data-bs-target="#createTicketModal">
                         <i class="bi bi-plus-circle"></i> Create New Ticket
                     </button>
                 </div>
             </div>
-
             <!-- Filter and Search -->
             <div class="row mb-4">
                 <div class="col-md-12">
@@ -165,73 +175,191 @@
                             <h5 class="mb-0">Filter Tickets</h5>
                         </div>
                         <div class="card-body">
-                            <form id="filter-form" class="row g-3">
+                            <form id="ticket-filter-form" class="row g-3" method="get" th:action="@{/tickets}">
+
+                                <!-- Status Filter -->
                                 <div class="col-md-3">
                                     <label for="status-filter" class="form-label">Status</label>
-                                    <select class="form-select" id="status-filter">
-                                        <option value="">All Statuses</option>
-                                        <option value="1">Open</option>
-                                        <option value="2">In Progress</option>
-                                        <option value="3">Resolved</option>
-                                        <option value="4">Closed</option>
+                                    <select class="form-select" id="status-filter" name="statusId">
+                                        <option value="" th:selected="${selectedStatusId == null}">All Statuses</option>
+                                        <option th:each="status : ${statuses}"
+                                                th:value="${status.statusId}"
+                                                th:text="${status.statusName}"
+                                                th:selected="${selectedStatusId != null and status.statusId == selectedStatusId}">
+                                        </option>
                                     </select>
                                 </div>
+
+                                <!-- Priority Filter -->
                                 <div class="col-md-3">
                                     <label for="priority-filter" class="form-label">Priority</label>
-                                    <select class="form-select" id="priority-filter">
-                                        <option value="">All Priorities</option>
-                                        <option value="1">Low</option>
-                                        <option value="2">Medium</option>
-                                        <option value="3">High</option>
+                                    <select class="form-select" id="priority-filter" name="priorityId">
+                                        <option value="" th:selected="${selectedPriorityId == null}">All Priorities</option>
+                                        <option th:each="priority : ${priorities}"
+                                                th:value="${priority.priorityId}"
+                                                th:text="${priority.priorityName}"
+                                                th:selected="${selectedPriorityId != null and priority.priorityId == selectedPriorityId}">
+                                        </option>
                                     </select>
                                 </div>
+
+                                <!-- Type Filter -->
                                 <div class="col-md-3">
                                     <label for="type-filter" class="form-label">Ticket Type</label>
-                                    <select class="form-select" id="type-filter">
-                                        <option value="">All Types</option>
-                                        <option value="1">Incident</option>
-                                        <option value="2">Request</option>
-                                        <option value="3">Question</option>
+                                    <select class="form-select" id="type-filter" name="typeId">
+                                        <option value="" th:selected="${selectedTypeId == null}">All Types</option>
+                                        <option th:each="type : ${types}"
+                                                th:value="${type.typeId}"
+                                                th:text="${type.typeName}"
+                                                th:selected="${selectedTypeId != null and type.typeId == selectedTypeId}">
+                                        </option>
                                     </select>
                                 </div>
+
+                                <!-- Search Input -->
                                 <div class="col-md-3">
                                     <label for="search-tickets" class="form-label">Search</label>
-                                    <input type="text" class="form-control" id="search-tickets" placeholder="Search tickets...">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="search-tickets" name="search"
+                                               placeholder="Search by title or description..."
+                                               th:value="${search}">
+                                        <button class="btn btn-outline-secondary" type="submit">
+                                            <i class="bi bi-search"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="col-12 mt-3">
-                                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                                    <button type="button" id="clear-filters" class="btn btn-secondary">Clear Filters</button>
+
+                                <!-- Apply Button -->
+                                <div class="col-md-12 d-flex justify-content-end mt-3">
+                                    <button type="submit" class="btn btn-primary me-2">Apply Filters</button>
+                                    <a th:href="@{/tickets}" class="btn btn-secondary">Clear Filters</a>
                                 </div>
+
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
 
+
             <!-- Tickets Table -->
             <div class="row">
                 <div class="col-md-12">
                     <div class="card shadow-sm">
                         <div class="card-body">
+
                             <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Title</th>
-                                        <th>Status</th>
-                                        <th>Priority</th>
-                                        <th>Type</th>
-                                        <th>Created by</th>
-                                        <th>Assigned to</th>
-                                        <th>Created</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="tickets-list">
-                                    <!-- Tickets will be loaded dynamically -->
-                                    </tbody>
-                                </table>
+
+                                <div id="ticket-table-container">
+                                    <table class="table table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Status</th>
+                                            <th>Priority</th>
+                                            <th>Type</th>
+                                            <th>Assigned to</th>
+                                            <th>Created</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody id="tickets-list">
+                                        <!-- Row for when no tickets are found -->
+                                        <tr th:if="${#lists.isEmpty(tickets)}">
+                                            <td colspan="7" class="text-center text-muted fw-bold py-4 px-3">
+                                                <i class="bi bi-search"></i> No matching tickets found.
+                                            </td>
+                                        </tr>
+
+                                        <!-- Row for each ticket -->
+                                        <tr th:each="ticket : ${tickets}">
+                                            <td th:text="${ticket.title}">Sample title</td>
+
+                                            <!-- Styled Status Column -->
+                                            <td>
+										            <span th:switch="${ticket.status.statusName}">
+										                <span th:case="'Open'" class="badge bg-warning text-dark">Open</span>
+										                <span th:case="'In Progress'" class="badge bg-info text-dark">In Progress</span>
+										                <span th:case="'Resolved'" class="badge bg-success">Resolved</span>
+										                <span th:case="'Closed'" class="badge bg-secondary">Closed</span>
+										                <span th:case="*" class="badge bg-dark" th:text="${ticket.status.statusName}"></span>
+										            </span>
+                                            </td>
+
+                                            <!-- Styled Priority Column -->
+                                            <td>
+										            <span th:switch="${ticket.priority.priorityName}">
+										                <span th:case="'High'" class="badge bg-danger">High</span>
+										                <span th:case="'Medium'" class="badge bg-warning text-dark">Medium</span>
+										                <span th:case="'Low'" class="badge bg-primary">Low</span>
+										                <span th:case="*" class="badge bg-dark" th:text="${ticket.priority.priorityName}"></span>
+										            </span>
+                                            </td>
+
+                                            <!-- Styled Type Column -->
+                                            <td>
+										            <span th:switch="${ticket.type.typeName}">
+										                <span th:case="'Incident'" class="badge bg-danger">Incident</span>
+										                <span th:case="'Request'" class="badge bg-primary">Request</span>
+										                <span th:case="'Question'" class="badge bg-secondary">Question</span>
+										                <span th:case="*" class="badge bg-dark" th:text="${ticket.type.typeName}"></span>
+										            </span>
+                                            </td>
+
+                                            <!-- Styled Assigned To Column -->
+                                            <td>
+                                                <span th:if="${ticket.assignedTo != null}" class="badge bg-success" th:text="${ticket.assignedTo.username}"></span>
+                                                <span th:unless="${ticket.assignedTo != null}" class="badge bg-secondary">Unassigned</span>
+                                            </td>
+
+                                            <td th:text="${#temporals.format(ticket.createdAt, 'dd/MM/yyyy HH:mm')}">Date</td>
+
+                                            <!-- Actions Column with OLD button styles -->
+                                            <td>
+                                                <!-- Edit button -->
+                                                <button
+                                                        class="btn btn-sm btn-warning edit-ticket-btn"
+                                                        title="Modifier"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#editTicketModal"
+                                                        th:attr="
+										                    data-ticket-id=${ticket.ticketId},
+										                    data-title=${ticket.title},
+										                    data-description=${ticket.description},
+										                    data-priority-id=${ticket.priority.priorityId},
+										                    data-type-id=${ticket.type.typeId}"
+                                                        th:disabled="${ticket.assignedTo != null}">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+
+                                                <!-- View Details button -->
+                                                <button
+                                                        class="btn btn-sm btn-info view-ticket-btn"
+                                                        title="View Details"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ticketDetailsModal"
+                                                        th:attr="data-ticket-id=${ticket.ticketId}">
+                                                    <i class="bi bi-info-circle"></i>
+                                                </button>
+
+                                                <!-- Delete form -->
+                                                <form th:action="@{'/user/tickets/delete/' + ${ticket.ticketId}}"
+                                                      method="post"
+                                                      style="display:inline-block;"
+                                                      onsubmit="return confirm('Are you sure you want to delete this ticket?');">
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-danger"
+                                                            title="Supprimer"
+                                                            th:disabled="${ticket.assignedTo != null}">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
 
                             <!-- Pagination -->
@@ -249,53 +377,115 @@
         <!-- Footer -->
         <footer class="footer mt-auto py-3 bg-light">
             <div class="container text-center">
-                <span class="text-muted">IT Support Ticket System &copy; 2025</span>
+					<span class="text-muted">IT Support Ticket System &copy;
+						2025</span>
             </div>
         </footer>
     </div>
 </div>
 
 <!-- Create Ticket Modal -->
-<div class="modal fade" id="createTicketModal" tabindex="-1" aria-labelledby="createTicketModalLabel" aria-hidden="true">
+<div class="modal fade" id="createTicketModal" tabindex="-1"
+     aria-labelledby="createTicketModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createTicketModalLabel">Create New Ticket</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="createTicketModalLabel">Create New
+                    Ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="create-ticket-form">
+                <form id="create-ticket-form" method="POST"
+                      th:action="@{/user/tickets/create}">
                     <div class="mb-3">
-                        <label for="ticket-title" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="ticket-title" required>
+                        <label for="ticket-title" class="form-label">Title</label> <input
+                            type="text" class="form-control" id="ticket-title" name="title"
+                            required>
                     </div>
                     <div class="mb-3">
                         <label for="ticket-description" class="form-label">Description</label>
-                        <textarea class="form-control" id="ticket-description" rows="5" required></textarea>
+                        <textarea class="form-control" id="ticket-description" rows="5"
+                                  name="description" required></textarea>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="ticket-priority" class="form-label">Priority</label>
-                            <select class="form-select" id="ticket-priority" required>
-                                <option value="1">Low</option>
-                                <option value="2" selected>Medium</option>
-                                <option value="3">High</option>
+                            <select class="form-select" id="ticket-priority"
+                                    name="priorityId" required>
+                                <option value="">-- Select Priority --</option>
+                                <option th:each="priority : ${priorities}"
+                                        th:value="${priority.priorityId}"
+                                        th:text="${priority.priorityName}"></option>
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="ticket-type" class="form-label">Type</label>
-                            <select class="form-select" id="ticket-type" required>
-                                <option value="1">Incident</option>
-                                <option value="2">Request</option>
-                                <option value="3">Question</option>
-                            </select>
+                            <label for="ticket-type" class="form-label">Type</label> <select
+                                class="form-select" id="ticket-type" name="typeId">
+                            <option value="">-- Select Type --</option>
+                            <option th:each="type : ${types}" th:value="${type.typeId}"
+                                    th:text="${type.typeName}"></option>
+                        </select>
                         </div>
                     </div>
                 </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submit-ticket">Submit
+                        Ticket</button>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="submit-ticket">Submit Ticket</button>
+
+        </div>
+    </div>
+</div>
+
+<!-- Edit Ticket Modal -->
+<div class="modal fade" id="editTicketModal" tabindex="-1" aria-labelledby="editTicketModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editTicketModalLabel">Edit Ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-ticket-form" th:action="@{/user/tickets/update}" method="post">
+                    <input type="hidden" id="edit-ticket-id" name="ticketId" />
+
+                    <div class="mb-3">
+                        <label for="edit-ticket-title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="edit-ticket-title" name="title" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit-ticket-description" class="form-label">Description</label>
+                        <textarea class="form-control" id="edit-ticket-description" rows="5" name="description" required></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="edit-ticket-priority" class="form-label">Priority</label>
+                            <select class="form-select" id="edit-ticket-priority" name="priority.priorityId" required>
+                                <option value="">-- Select Priority --</option>
+                                <option th:each="priority : ${priorities}" th:value="${priority.priorityId}" th:text="${priority.priorityName}"></option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="edit-ticket-type" class="form-label">Type</label>
+                            <select class="form-select" id="edit-ticket-type" name="type.typeId">
+                                <option value="">-- Select Type --</option>
+                                <option th:each="type : ${types}" th:value="${type.typeId}" th:text="${type.typeName}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Ticket</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -305,28 +495,86 @@
 <div class="modal fade" id="ticketDetailsModal" tabindex="-1" aria-labelledby="ticketDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
+            <style>
+                /* Custom Styling */
+                .badge {
+                  font-size: 0.85rem;
+                  padding: 0.5em 0.75em;
+                  border-radius: 0.5rem;
+                }
+
+                .card-header {
+                  border-bottom: 1px solid #dee2e6;
+                  background-color: #f8f9fa;
+                }
+
+                #detail-ticket-description {
+                  background-color: #f8f9fc;
+                  padding: 1rem;
+                  border-radius: 0.5rem;
+                  border: 1px solid #dee2e6;
+                }
+
+                #add-comment-form textarea {
+                  resize: vertical;
+                }
+
+                #comments-list {
+                  max-height: 200px;
+                  overflow-y: auto;
+                }
+
+                .col-md-4 .card {
+                  border: 1px solid #dee2e6;
+                  background-color: #ffffff;
+                }
+
+                #add-comment-form button {
+                  width: 100%;
+                }
+
+                #ticket-history li {
+                  padding: 0.5rem 0;
+                  border-bottom: 1px solid #eee;
+                }
+
+                .modal-title {
+                  font-weight: bold;
+                }
+
+                 #ticket-history {
+                    list-style: none;
+                    padding-left: 0;
+                    margin-bottom: 0;
+                  }
+            </style>
+
             <div class="modal-header">
                 <h5 class="modal-title" id="ticketDetailsModalLabel">Ticket Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <div class="modal-body">
                 <div class="row">
+                    <!-- Left section -->
                     <div class="col-md-8">
-                        <!-- Ticket Information -->
                         <h4 id="detail-ticket-title"></h4>
+
                         <div class="mb-3 mt-3">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <span class="badge bg-primary me-2" id="detail-ticket-id"></span>
-                                    <span class="badge" id="detail-ticket-status"></span>
-                                    <span class="badge" id="detail-ticket-priority"></span>
+                                    <span class="badge bg-primary me-2" id="detail-ticket-id" style="display: none;"></span>
+                                    <span class="badge bg-info text-dark" id="detail-ticket-status"></span>
+                                    <span class="badge bg-warning text-dark" id="detail-ticket-priority"></span>
                                     <span class="badge bg-secondary" id="detail-ticket-type"></span>
                                 </div>
-                                <div>
-                                    Created: <span id="detail-ticket-created"></span>
+                                <div class="text-muted">
+                                    <i class="bi bi-calendar-event me-1"></i> Created:
+                                    <span id="detail-ticket-created"></span>
                                 </div>
                             </div>
                         </div>
+
                         <div class="mb-4">
                             <h5>Description</h5>
                             <p id="detail-ticket-description"></p>
@@ -353,8 +601,10 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Right sidebar -->
                     <div class="col-md-4">
-                        <!-- Ticket Details Sidebar -->
+                        <!-- Ticket Information -->
                         <div class="card shadow-sm">
                             <div class="card-header bg-white">
                                 <h5 class="mb-0">Ticket Information</h5>
@@ -364,9 +614,9 @@
                                 <p><strong>Assigned to:</strong> <span id="detail-assigned-to"></span></p>
                                 <p><strong>Last updated:</strong> <span id="detail-updated-at"></span></p>
 
-                                <!-- Technician Actions (only visible to Technicians and Admins) -->
+                                <!-- Technician Actions -->
                                 <div id="technician-actions" style="display: none;">
-                                    <hr>
+                                    <hr />
                                     <h6>Ticket Actions</h6>
                                     <div class="mb-3">
                                         <label for="update-status" class="form-label">Update Status</label>
@@ -394,7 +644,7 @@
                                 <h5 class="mb-0">Ticket History</h5>
                             </div>
                             <div class="card-body">
-                                <ul class="list-group list-group-flush" id="ticket-history">
+                                <ul class="list-group list-group-flush ps-0 mb-0" id="ticket-history">
                                     <!-- History entries will be loaded dynamically -->
                                 </ul>
                             </div>
@@ -402,6 +652,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
@@ -410,8 +661,151 @@
 </div>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/tickets.js"></script>
+
+<script>
+    document.getElementById('logout-btn').addEventListener('click',
+            function(event) {
+                event.preventDefault();
+                if (confirm("Are you sure you want to log out?")) {
+                    window.location.href = "/logout";
+                }
+            });
+</script>
+
+<script>
+    document.getElementById('submit-ticket').addEventListener('click',
+            function() {
+                document.getElementById('create-ticket-form').submit();
+            });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const editButtons = document.querySelectorAll(".edit-ticket-btn");
+
+        editButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                const ticketId = button.getAttribute("data-ticket-id");
+                const title = button.getAttribute("data-title");
+                const description = button.getAttribute("data-description");
+                const priorityId = button.getAttribute("data-priority-id");
+                const typeId = button.getAttribute("data-type-id");
+
+                // Populate modal fields
+                document.getElementById("edit-ticket-id").value = ticketId;
+                document.getElementById("edit-ticket-title").value = title;
+                document.getElementById("edit-ticket-description").value = description;
+                document.getElementById("edit-ticket-priority").value = priorityId;
+                document.getElementById("edit-ticket-type").value = typeId;
+            });
+        });
+    });
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const buttons = document.querySelectorAll(".view-ticket-btn");
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", function () {
+          const ticketId = this.getAttribute("data-ticket-id");
+
+          fetch(`/user/tickets/details/${ticketId}`)
+            .then(response => response.json())
+            .then(data => {
+              // Fill modal fields
+              document.getElementById("detail-ticket-title").textContent = data.title;
+              document.getElementById("detail-ticket-id").textContent = "Ticket #" + data.ticketId;
+              document.getElementById("detail-ticket-status").textContent = data.status;
+              document.getElementById("detail-ticket-priority").textContent = data.priority;
+              document.getElementById("detail-ticket-type").textContent = data.type;
+              document.getElementById("detail-ticket-created").textContent = data.createdAt;
+              document.getElementById("detail-ticket-description").textContent = data.description;
+              document.getElementById("detail-created-by").textContent = data.createdBy;
+              document.getElementById("detail-assigned-to").textContent = data.assignedTo ?? "Unassigned";
+              document.getElementById("detail-updated-at").textContent = data.updatedAt;
+
+              // Load comments
+              const commentsContainer = document.getElementById("comments-list");
+              commentsContainer.innerHTML = '';
+              data.comments.forEach(comment => {
+                const div = document.createElement("div");
+                div.innerHTML = `<strong>${comment.username}</strong>: ${comment.comment}`;
+                commentsContainer.appendChild(div);
+              });
+
+              // Load history
+              const historyContainer = document.getElementById("ticket-history");
+              historyContainer.innerHTML = '';
+              data.history.forEach(entry => {
+                const li = document.createElement("li");
+                li.textContent = `${entry.status} by ${entry.changedBy} at ${entry.changedAt}`;
+                historyContainer.appendChild(li);
+              });
+            });
+        });
+      });
+    });
+</script>
+
+<script>
+    let currentTicketId = null;
+
+    // Open modal and remember ticket ID
+    document.querySelectorAll(".view-ticket-btn").forEach(btn => {
+      btn.addEventListener("click", function () {
+        currentTicketId = this.getAttribute("data-ticket-id");
+        loadComments(currentTicketId);
+      });
+    });
+
+    // Submit new comment
+    document.getElementById("add-comment-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const commentText = document.getElementById("comment-text").value;
+
+      fetch(`/user/tickets/${currentTicketId}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `commentText=${encodeURIComponent(commentText)}`
+      })
+        .then(response => {
+          if (response.ok) {
+            document.getElementById("comment-text").value = "";
+            loadComments(currentTicketId);
+          } else {
+            alert("Error posting comment.");
+          }
+        });
+    });
+
+    // Load comments
+    function loadComments(ticketId) {
+      fetch(`/user/tickets/${ticketId}/comments`)
+        .then(res => res.json())
+        .then(data => {
+          const commentsList = document.getElementById("comments-list");
+          commentsList.innerHTML = "";
+
+          data.forEach(c => {
+            const commentHtml = `
+              <div class="mb-2">
+                <strong>${c.username}</strong> <small class="text-muted">${c.createdAt}</small>
+                <p>${c.comment}</p>
+              </div>`;
+            commentsList.innerHTML += commentHtml;
+          });
+        });
+    }
+</script>
+
 </body>
 </html>
