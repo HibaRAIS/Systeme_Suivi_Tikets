@@ -57,16 +57,17 @@
         </div>
         <div class="card-body p-4">
             <!-- Alert messages -->
-            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <span th:text="${error}">Error message</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                <span th:text="${message}">Success message</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+			<div th:if="${!#strings.isEmpty(error)}" class="alert alert-danger alert-dismissible fade show" role="alert">
+			    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+			    <span th:text="${error}">Error message</span>
+			    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+			
+			<div th:if="${!#strings.isEmpty(message)}" class="alert alert-success alert-dismissible fade show" role="alert">
+			    <i class="bi bi-check-circle-fill me-2"></i>
+			    <span th:text="${message}">Success message</span>
+			    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
             <!-- Updated Login Form with corrected username input name -->
             <form id="login-form" th:action="@{/auth/login}" method="post">
                 <!-- Username field changed from email to username -->

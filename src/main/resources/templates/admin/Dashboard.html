@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -110,35 +111,35 @@
 <div class="d-flex">
   <!-- Sidebar Navigation -->
   <div id="sidebar" class="d-flex flex-column">
-    <a class="navbar-brand text-center border-bottom pb-3" href="Dashboard.html">
+    <a class="navbar-brand text-center border-bottom pb-3" href="/admin/dashboard">
       <i class="bi bi-shield-lock me-2"></i>Admin Panel
     </a>
     <ul class="nav flex-column mt-3">
       <li class="nav-item">
-        <a class="nav-link active" href="Dashboard.html">
+        <a class="nav-link active" href="/admin/dashboard">
           <i class="bi bi-speedometer2"></i> Dashboard
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="users.html">
+        <a class="nav-link" href="/admin/users">
           <i class="bi bi-people"></i> Users
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="tickets.html">
+        <a class="nav-link" href="/admin/tickets">
           <i class="bi bi-ticket-perforated"></i> Tickets
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="reports.html">
-          <i class="bi bi-graph-up"></i> Reports
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="settings.html">
-          <i class="bi bi-gear"></i> Settings
-        </a>
-      </li>
+      <!--<li class="nav-item">
+               <a class="nav-link" href="reports.html">
+                   <i class="bi bi-graph-up"></i> Reports
+               </a>
+           </li>
+           <li class="nav-item">
+               <a class="nav-link" href="settings.html">
+                   <i class="bi bi-gear"></i> Settings
+               </a>
+           </li>  -->
     </ul>
 
     <!-- User dropdown moved to bottom of sidebar -->
@@ -149,9 +150,9 @@
           <span id="username">Admin</span>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark w-100">
-          <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i> Profile</a></li>
+          <!-- <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i> Profile</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="../user/dashboard.html"><i class="bi bi-arrows-angle-contract me-2"></i> User View</a></li>
+          <li><a class="dropdown-item" href="../user/dashboard.html"><i class="bi bi-arrows-angle-contract me-2"></i> User View</a></li> -->
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="#" id="logout-btn"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
         </ul>
@@ -173,67 +174,74 @@
 
       <!-- Stats cards -->
       <div class="row">
+
+        <!-- Total Users Card -->
         <div class="col-md-3 mb-4">
           <div class="card shadow-sm card-admin bg-primary text-white">
             <div class="card-body d-flex justify-content-between align-items-center">
               <div>
                 <h6 class="card-title">Total Users</h6>
-                <h2 class="mb-0" id="total-users">324</h2>
+                <h2 class="mb-0" id="total-users" th:text="${totalUsers}">0</h2>
               </div>
-              <div class="stat-icon">
-                <i class="bi bi-people"></i>
-              </div>
+              <div class="stat-icon"><i class="bi bi-people"></i></div>
             </div>
+            <!--  le nombre de techniciens. -->
             <div class="card-footer bg-transparent border-0 py-2">
-              <small><span class="text-white"><i class="bi bi-arrow-up-short"></i> 12%</span> from last month</small>
+              <small th:text="${techniciansCount} + ' Technicians'">0 Technicians</small>
             </div>
           </div>
         </div>
+
+        <!-- Total Tickets Card -->
         <div class="col-md-3 mb-4">
           <div class="card shadow-sm card-admin bg-success text-white">
             <div class="card-body d-flex justify-content-between align-items-center">
               <div>
                 <h6 class="card-title">Total Tickets</h6>
-                <h2 class="mb-0" id="total-tickets">1,293</h2>
+                <h2 class="mb-0" id="total-tickets" th:text="${totalTickets}">0</h2>
               </div>
-              <div class="stat-icon">
-                <i class="bi bi-ticket-perforated"></i>
-              </div>
+              <div class="stat-icon"><i class="bi bi-ticket-perforated"></i></div>
             </div>
-            <div class="card-footer bg-transparent border-0 py-2">
-              <small><span class="text-white"><i class="bi bi-arrow-up-short"></i> 8%</span> from last month</small>
+            <!-- lien rapide vers la page des tickets. -->
+            <div class="card-footer bg-transparent border-0 py-2 text-center">
+              <a href="/admin/tickets" class="text-white stretched-link text-decoration-none">
+                <small>View All Tickets <i class="bi bi-arrow-right-circle"></i></small>
+              </a>
             </div>
           </div>
         </div>
+
+        <!-- Open Tickets Card -->
         <div class="col-md-3 mb-4">
           <div class="card shadow-sm card-admin bg-warning text-dark">
             <div class="card-body d-flex justify-content-between align-items-center">
               <div>
                 <h6 class="card-title">Open Tickets</h6>
-                <h2 class="mb-0" id="open-tickets">43</h2>
+                <h2 class="mb-0" id="open-tickets" th:text="${openTickets}">0</h2>
               </div>
-              <div class="stat-icon">
-                <i class="bi bi-hourglass-split"></i>
-              </div>
+              <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
             </div>
+            <!-- le nombre de tickets résolus. -->
             <div class="card-footer bg-transparent border-0 py-2">
-              <small><span class="text-dark"><i class="bi bi-arrow-down-short"></i> 3%</span> from last month</small>
+              <small th:text="${resolvedTicketsCount} + ' Resolved'">0 Resolved</small>
             </div>
           </div>
         </div>
+
+        <!-- Unassigned Tickets -->
         <div class="col-md-3 mb-4">
-          <div class="card shadow-sm card-admin bg-info text-white">
+          <div class="card shadow-sm card-admin bg-danger text-white">
             <div class="card-body d-flex justify-content-between align-items-center">
               <div>
-                <h6 class="card-title">Average Response</h6>
-                <h2 class="mb-0" id="avg-response">2.4h</h2>
+                <h6 class="card-title">Unassigned Tickets</h6>
+                <h2 class="mb-0" id="unassigned-tickets" th:text="${unassignedTickets}">0</h2>
               </div>
               <div class="stat-icon">
-                <i class="bi bi-clock-history"></i>
+                <i class="bi bi-person-x"></i>
               </div>
             </div>
             <div class="card-footer bg-transparent border-0 py-2">
-              <small><span class="text-white"><i class="bi bi-arrow-down-short"></i> 10%</span> from last month</small>
+              <small>Requiring immediate attention</small>
             </div>
           </div>
         </div>
@@ -245,10 +253,10 @@
           <div class="card shadow-sm mb-4">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
               <h5 class="mb-0">Tickets Overview</h5>
-              <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn btn-outline-secondary">Week</button>
-                <button type="button" class="btn btn-outline-secondary active">Month</button>
-                <button type="button" class="btn btn-outline-secondary">Year</button>
+              <div class="btn-group btn-group-sm" id="tickets-overview-period-buttons">
+                <!-- <button type="button" class="btn btn-outline-secondary" data-period="week">Week</button> -->
+                <button type="button" class="btn btn-outline-secondary active" data-period="month">Month</button>
+                <!-- <button type="button" class="btn btn-outline-secondary" data-period="year">Year</button> -->
               </div>
             </div>
             <div class="card-body">
@@ -291,98 +299,75 @@
       </div>
 
       <!-- Recent Activity -->
-      <div class="row">
-        <div class="col-md-6">
-          <div class="card shadow-sm">
+      <div class="row d-flex">
+        <!-- ==================================== -->
+        <!--   Carte des Tickets Récents        -->
+        <!-- ==================================== -->
+        <div class="col-md-6 mb-4">
+          <div class="card shadow-sm h-100">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
               <h5 class="mb-0">Recent Tickets</h5>
-              <a href="tickets.html" class="btn btn-sm btn-outline-primary">View All</a>
+              <a th:href="@{/admin/tickets}" class="btn btn-sm btn-outline-primary">View All</a>
             </div>
             <div class="card-body p-0">
               <div class="list-group list-group-flush" id="recent-tickets-list">
-                <div class="list-group-item p-3">
-                  <div class="d-flex w-100 justify-content-between">
-                    <h6 class="mb-1 text-primary">#103 - Network connectivity issue</h6>
-                    <small class="text-muted">3 hours ago</small>
-                  </div>
-                  <p class="mb-1">Employees unable to access shared drives after server update.</p>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <span class="badge bg-warning text-dark">Open</span>
-                    <small>By: Sarah Johnson</small>
-                  </div>
+                <div th:if="${#lists.isEmpty(recentTickets)}" class="list-group-item p-3 text-center text-muted">
+                  No recent tickets found.
                 </div>
-                <div class="list-group-item p-3">
+                <div class="list-group-item p-3" th:each="ticket : ${recentTickets}">
                   <div class="d-flex w-100 justify-content-between">
-                    <h6 class="mb-1 text-primary">#102 - Email client configuration</h6>
-                    <small class="text-muted">5 hours ago</small>
+                    <h6 class="mb-1 text-primary">
+                      <a th:href="@{'/tickets/edit/' + ${ticket.ticketId}}" class="text-decoration-none">
+                        <span th:text="'#' + ${ticket.ticketId}">#103</span> -
+                        <span th:text="${ticket.title}">Titre du ticket</span>
+                      </a>
+                    </h6>
+                    <small class="text-muted" th:text="${#temporals.format(ticket.createdAt, 'dd MMM, HH:mm')}"></small>
                   </div>
-                  <p class="mb-1">New employee needs Outlook setup on their workstation.</p>
+                  <p class="mb-1" th:text="${#strings.abbreviate(ticket.description, 100)}">Description du ticket...</p>
                   <div class="d-flex justify-content-between align-items-center">
-                    <span class="badge bg-info text-white">In Progress</span>
-                    <small>By: Michael Chen</small>
-                  </div>
-                </div>
-                <div class="list-group-item p-3">
-                  <div class="d-flex w-100 justify-content-between">
-                    <h6 class="mb-1 text-primary">#101 - Software installation request</h6>
-                    <small class="text-muted">Yesterday</small>
-                  </div>
-                  <p class="mb-1">Request for Adobe Creative Cloud on marketing department computers.</p>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <span class="badge bg-success">Resolved</span>
-                    <small>By: Emily Wilson</small>
+                            <span class="badge" th:text="${ticket.status?.statusName}"
+                                  th:classappend="${ticket.status?.statusName == 'Open' ? 'bg-warning text-dark' :
+                                                   ticket.status?.statusName == 'In Progress' ? 'bg-info' :
+                                                   ticket.status?.statusName == 'Resolved' ? 'bg-success' : 'bg-secondary'}">
+                                Statut
+                            </span>
+                    <small th:text="'By: ' + ${ticket.createdBy?.firstName} + ' ' + ${ticket.createdBy?.lastName}">Par: Utilisateur</small>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="card shadow-sm">
+
+        <!-- ======================================= -->
+        <!-- Carte de l'Activité Récente des Utilisateurs -->
+        <!-- ======================================= -->
+        <div class="col-md-6 mb-4">
+          <div class="card shadow-sm h-100">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-              <h5 class="mb-0">Recent User Activity</h5>
-              <a href="users.html" class="btn btn-sm btn-outline-primary">View All Users</a>
+              <h5 class="mb-0">Recent User Registrations</h5>
+              <a th:href="@{/admin/users}" class="btn btn-sm btn-outline-primary">View All Users</a>
             </div>
             <div class="card-body p-0">
               <div class="list-group list-group-flush" id="recent-user-activity">
-                <div class="list-group-item p-3">
-                  <div class="d-flex align-items-center">
-                    <div class="avatar me-3 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">JD</div>
-                    <div>
-                      <h6 class="mb-0">John Doe</h6>
-                      <small class="text-muted">Created a new ticket</small>
-                    </div>
-                    <small class="ms-auto text-muted">2 hours ago</small>
-                  </div>
+                <div th:if="${#lists.isEmpty(recentUsers)}" class="list-group-item p-3 text-center text-muted">
+                  No recent user registrations.
                 </div>
-                <div class="list-group-item p-3">
+                <div class="list-group-item p-3" th:each="user : ${recentUsers}">
                   <div class="d-flex align-items-center">
-                    <div class="avatar me-3 bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">TS</div>
-                    <div>
-                      <h6 class="mb-0">Tech Support</h6>
-                      <small class="text-muted">Resolved ticket #98</small>
+                    <div class="avatar me-3 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                         style="width: 40px; height: 40px;"
+                         th:text="${user.firstName.substring(0, 1) + user.lastName.substring(0, 1)}">
                     </div>
-                    <small class="ms-auto text-muted">4 hours ago</small>
-                  </div>
-                </div>
-                <div class="list-group-item p-3">
-                  <div class="d-flex align-items-center">
-                    <div class="avatar me-3 bg-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">AW</div>
                     <div>
-                      <h6 class="mb-0">Admin Wilson</h6>
-                      <small class="text-muted">Added 3 new technicians</small>
+                      <h6 class="mb-0" th:text="${user.firstName + ' ' + user.lastName}">Nom de l'utilisateur</h6>
+                      <small class="text-muted" th:text="'Registered as ' + ${user.role?.roleName}">Rôle</small>
                     </div>
-                    <small class="ms-auto text-muted">Yesterday</small>
-                  </div>
-                </div>
-                <div class="list-group-item p-3">
-                  <div class="d-flex align-items-center">
-                    <div class="avatar me-3 bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">SM</div>
-                    <div>
-                      <h6 class="mb-0">Sarah Miller</h6>
-                      <small class="text-muted">Updated account information</small>
-                    </div>
-                    <small class="ms-auto text-muted">2 days ago</small>
+                    <small class="ms-auto text-muted"
+                           th:text="${#temporals.format(user.createdDate, 'dd MMM yyyy')}">
+                      Date
+                    </small>
                   </div>
                 </div>
               </div>
@@ -391,6 +376,7 @@
         </div>
       </div>
     </div>
+
 
     <!-- Footer -->
     <footer class="footer mt-auto py-3 bg-light">
@@ -405,49 +391,82 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="../js/auth.js"></script>
-<script>
-  // Simple Chart.js implementation
+<script th:inline="javascript">
   document.addEventListener('DOMContentLoaded', function() {
-    // Tickets overview chart
+
+    // ====================================================================
+    // Graphique 1 : Tickets Overview
+    // ====================================================================
+    // Récupérer les données dynamiques du backend
+   // Étape A : Récupérer les données préparées par le contrôleur grâce à Thymeleaf.
+    // La syntaxe /*[[...]]*/ injecte les variables Java dans le JavaScript.
+    const overviewLabels = /*[[${overviewLabels}]]*/ [];
+    const newTicketsData = /*[[${overviewNewTicketsData}]]*/ [];
+    const resolvedTicketsData = /*[[${overviewResolvedTicketsData}]]*/ [];
+
+    // Étape B : Trouver le canvas et créer le graphique avec ces données dynamiques.
     const ticketsCtx = document.getElementById('ticketsChart').getContext('2d');
     const ticketsChart = new Chart(ticketsCtx, {
       type: 'line',
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        labels: overviewLabels, // Utilise les labels dynamiques (ex: les 12 derniers mois)
         datasets: [{
           label: 'New Tickets',
-          data: [65, 59, 80, 81, 56, 55, 40, 55, 70, 80, 90, 100],
+          data: newTicketsData, // Utilise les données dynamiques des tickets créés
           fill: false,
-          borderColor: '#0d6efd',
+          borderColor: '#0d6efd', // Bleu
           tension: 0.1
         }, {
           label: 'Resolved Tickets',
-          data: [45, 49, 60, 71, 46, 45, 30, 45, 60, 70, 75, 85],
+          data: resolvedTicketsData, // Utilise les données dynamiques des tickets résolus
           fill: false,
-          borderColor: '#28a745',
+          borderColor: '#28a745', // Vert
           tension: 0.1
         }]
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true // Assure que l'axe Y commence à 0 pour une meilleure lisibilité
+            }
+        }
       }
     });
 
-    // Status distribution chart
+    // ====================================================================
+    // Graphique 2 : Ticket Distribution
+    // ====================================================================
+
+    // Étape A : Récupérer les données du backend
+    const dynamicStatusLabels = /*[[${statusLabels}]]*/ ['No Data'];
+    const dynamicStatusData = /*[[${statusData}]]*/ [1];
+
+    // Étape B : Définir une correspondance fixe entre les statuts et les couleurs
+    const colorMap = {
+        'Open': '#ffc107',
+        'In Progress': '#17a2b8',
+        'Resolved': '#28a745',
+        'Closed': '#6c757d',
+        // Ajoutez d'autres statuts et couleurs si nécessaire
+        'Default': '#cccccc' // Une couleur par défaut si un statut est inconnu
+    };
+
+    // Étape C : Créer le tableau de couleurs dans le BON ordre, en se basant sur les labels reçus
+    const dynamicBackgroundColors = dynamicStatusLabels.map(label => colorMap[label] || colorMap['Default']);
+
+    // Étape D : Créer le graphique
     const statusCtx = document.getElementById('statusChart').getContext('2d');
     const statusChart = new Chart(statusCtx, {
       type: 'doughnut',
       data: {
-        labels: ['Open', 'In Progress', 'Resolved', 'Closed'],
+        labels: dynamicStatusLabels,
         datasets: [{
-          data: [15, 25, 40, 20],
-          backgroundColor: [
-            '#ffc107',
-            '#17a2b8',
-            '#28a745',
-            '#6c757d'
-          ]
+          data: dynamicStatusData,
+          // On utilise notre tableau de couleurs triées dynamiquement
+          backgroundColor: dynamicBackgroundColors,
+          hoverOffset: 4
         }]
       },
       options: {
@@ -460,7 +479,39 @@
         }
       }
     });
+
+    // Étape E : Mettre à jour la légende HTML
+    const legendContainer = document.getElementById('status-legend-container');
+    if (legendContainer && dynamicStatusLabels[0] !== 'No Data') {
+        legendContainer.innerHTML = ''; // Vide la légende
+
+        dynamicStatusLabels.forEach((label, index) => {
+
+            // LA CONDITION QUI FAIT TOUTE LA DIFFÉRENCE :
+            // On ne crée l'élément de légende que si le label N'EST PAS "Closed".
+            if (label !== 'Closed') {
+                const color = dynamicBackgroundColors[index];
+                const legendItemHtml = `
+                    <div class="d-flex align-items-center mx-2">
+                      <div class="me-2" style="width: 12px; height: 12px; background-color: ${color}; border-radius: 50%;"></div>
+                      <small>${label}</small>
+                    </div>
+                `;
+                legendContainer.innerHTML += legendItemHtml;
+            }
+        });
+    }
+
   });
+</script>
+
+<script>
+    document.getElementById('logout-btn').addEventListener('click', function(event) {
+        event.preventDefault();
+        if (confirm("Are you sure you want to log out?")) {
+            window.location.href = "/logout";
+        }
+    });
 </script>
 </body>
 </html>
