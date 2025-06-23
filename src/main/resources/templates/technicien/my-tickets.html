@@ -167,9 +167,6 @@
                     <span id="username">Tech Name</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-dark w-100">
-                    <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person me-2"></i> Profile</a></li>
-                    <li><a class="dropdown-item" href="preferences.html"><i class="bi bi-sliders me-2"></i> Preferences</a></li>
-                    <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="../index.html"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
                 </ul>
             </div>
@@ -197,79 +194,13 @@
                             <h2><i class="bi bi-ticket-perforated me-2"></i>My Tickets</h2>
                             <p class="text-muted">Here you can view and manage all your assigned tickets.</p>
                         </div>
-                        <div class="d-flex align-items-center">
-                            <div class="btn-group me-2">
-                                <button type="button" class="btn btn-outline-primary">
-                                    <i class="bi bi-funnel"></i> Filter
-                                </button>
-                                <button type="button" class="btn btn-outline-primary">
-                                    <i class="bi bi-sort-down"></i> Sort
-                                </button>
-                            </div>
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#quickActionModal">
-                                <i class="bi bi-plus-lg"></i> Create Ticket
-                            </button>
-                        </div>
+
                     </div>
                     <hr>
                 </div>
             </div>
 
-            <!-- Stats Overview Section -->
-            <div class="row mb-4">
-                <div class="col-md-3 mb-3">
-                    <div class="card shadow-sm tech-stats-card border-0">
-                        <div class="card-body bg-primary text-white rounded">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="card-title">Total Tickets</h6>
-                                    <h2 class="display-5 mb-0">24</h2>
-                                </div>
-                                <i class="bi bi-ticket-detailed-fill fs-1 opacity-50"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="card shadow-sm tech-stats-card border-0">
-                        <div class="card-body bg-success text-white rounded">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="card-title">Completed</h6>
-                                    <h2 class="display-5 mb-0">12</h2>
-                                </div>
-                                <i class="bi bi-check2-circle fs-1 opacity-50"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="card shadow-sm tech-stats-card border-0">
-                        <div class="card-body bg-warning text-dark rounded">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="card-title">In Progress</h6>
-                                    <h2 class="display-5 mb-0">8</h2>
-                                </div>
-                                <i class="bi bi-hourglass-split fs-1 opacity-50"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="card shadow-sm tech-stats-card border-0">
-                        <div class="card-body bg-danger text-white rounded">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="card-title">Pending</h6>
-                                    <h2 class="display-5 mb-0">4</h2>
-                                </div>
-                                <i class="bi bi-exclamation-circle fs-1 opacity-50"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- Tab Navigation -->
             <div class="row mb-4">
@@ -294,7 +225,7 @@
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab">
-                                        Completed <span class="badge bg-success ms-1">12</span>
+                                        Resoleved <span class="badge bg-success ms-1">12</span>
                                     </button>
                                 </li>
                             </ul>
@@ -367,7 +298,7 @@
                                         <tr class="ticket-priority-low">
                                             <th scope="row">1232</th>
                                             <td>Email Signature Update</td>
-                                            <td><span class="badge bg-success">Completed</span></td>
+                                            <td><span class="badge bg-success">Resoleved</span></td>
                                             <td><span class="badge bg-success">Low</span></td>
                                             <td>Emily Wilson</td>
                                             <td>2025-05-16</td>
@@ -412,7 +343,7 @@
                                         <tr class="ticket-priority-low">
                                             <th scope="row">1229</th>
                                             <td>Projector Setup for Conference Room</td>
-                                            <td><span class="badge bg-success">Completed</span></td>
+                                            <td><span class="badge bg-success">Resoleved</span></td>
                                             <td><span class="badge bg-success">Low</span></td>
                                             <td>David Brown</td>
                                             <td>2025-05-13</td>
@@ -427,7 +358,7 @@
                                         <tr class="ticket-priority-high">
                                             <th scope="row">1228</th>
                                             <td>Server Room Temperature Alert</td>
-                                            <td><span class="badge bg-success">Completed</span></td>
+                                            <td><span class="badge bg-success">Resoleved</span></td>
                                             <td><span class="badge bg-danger">High</span></td>
                                             <td>System Alert</td>
                                             <td>2025-05-12</td>
@@ -442,7 +373,7 @@
                                         <tr class="ticket-priority-medium">
                                             <th scope="row">1227</th>
                                             <td>Printer Not Working in HR Department</td>
-                                            <td><span class="badge bg-success">Completed</span></td>
+                                            <td><span class="badge bg-success">Resoleved</span></td>
                                             <td><span class="badge bg-warning text-dark">Medium</span></td>
                                             <td>Karen White</td>
                                             <td>2025-05-11</td>
