@@ -35,4 +35,35 @@ public class EmailServiceImpl implements EmailService {
 
         mailSender.send(message);
     }
+
+    // NOUVELLE MÉTHODE POUR LA CONFIRMATION DE CRÉATION
+    @Override
+    public void sendTicketCreationConfirmation(Ticket ticket) {
+        // On vérifie que le créateur du ticket et son email existent.
+        // Je suppose ici que votre modèle Ticket a une relation vers l'utilisateur qui l'a créé,
+        // par exemple : private User createdBy;
+        if (ticket.getCreatedBy() == null || ticket.getCreatedBy().getEmail() == null) {
+            return;
+        }
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("no-reply@ticketsystem.com");
+        // On envoie l'email au créateur du ticket
+        message.setTo(ticket.getCreatedBy().getEmail());
+        message.setSubject("Confirmation de création de votre ticket : #" + ticket.getTicketId());
+
+        String text = String.format(
+                "Bonjour %s,\n\nVotre ticket #%d concernant '%s' a bien été créé.\n\nDescription que vous avez fournie:\n%s\n\nUn technicien prendra en charge votre demande dès que possible. Vous pouvez suivre son statut depuis votre espace personnel.\n\nMerci.",
+                ticket.getCreatedBy().getFirstName(), // ou getUsername()
+                ticket.getTicketId(),
+                ticket.getTitle(),
+                ticket.getDescription()
+        );
+        message.setText(text);
+
+        mailSender.send(message);
+    }
+
+
+
 }
