@@ -1,20 +1,20 @@
 package com.example.systeme_suivi_ticket.service.impl;
 
-import com.example.systeme_suivi_ticket.dto.AssignTicketRequest;
-import com.example.systeme_suivi_ticket.dto.ChartDataDTO;
-import com.example.systeme_suivi_ticket.model.Ticket;
-import com.example.systeme_suivi_ticket.model.TicketStatus;
-import com.example.systeme_suivi_ticket.model.User;
+import com.example.systeme_suivi_ticket.dto.*;
+import com.example.systeme_suivi_ticket.model.*;
 import com.example.systeme_suivi_ticket.repository.*;
 import com.example.systeme_suivi_ticket.service.EmailService;
 import com.example.systeme_suivi_ticket.service.TicketService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,6 +38,13 @@ public class TicketServiceImpl implements TicketService {
     private UserRepository userRepository;
 
     @Autowired private EmailService emailService;
+
+    @Autowired
+    private TicketCommentRepository ticketCommentRepository;
+
+    @Autowired
+    private TicketStatusHistoryRepository ticketStatusHistoryRepository;
+
 
     @Override
     public List<TicketStatus> getAllStatuses() {
@@ -306,6 +313,332 @@ public class TicketServiceImpl implements TicketService {
 
         return ticketRepository.findTicketsWithFilters(userId, statusId, priorityId, typeId, search);
     }
+
+    //technicien
+    @Override
+    public TechnicianDashboardStatsDTO getTechnicianDashboardStats(User technician) {
+        // 1. Récupérer tous les tickets assignés à ce technicien
+        List<Ticket> assignedTickets = ticketRepository.findByAssignedToOrderByCreatedAtDesc(technician);
+
+        // 2. Initialiser les compteurs
+        long resolvedCount = 0;
+        long inProgressCount = 0;
+        long highPriorityCount = 0;
+        long unresolvedCount = 0;
+
+        // 3. Parcourir les tickets pour calculer les statistiques
+        for (Ticket ticket : assignedTickets) {
+            // --- Comparaison par ID (plus robuste) ---
+
+            // Compter les tickets résolus (StatusID = 3)
+            if (ticket.getStatus() != null && ticket.getStatus().getStatusId() == 3) {
+                resolvedCount++;
+            }
+
+            // Compter les tickets en cours (StatusID = 2)
+            if (ticket.getStatus() != null && ticket.getStatus().getStatusId() == 2) {
+                inProgressCount++;
+            }
+
+            // Un ticket non résolu est un ticket dont le statut n'est NI Résolu (3) NI Fermé (4)
+            if (ticket.getStatus() != null && ticket.getStatus().getStatusId() != 3 && ticket.getStatus().getStatusId() != 4) {
+                unresolvedCount++;
+            }
+
+            // Compter les tickets à haute priorité (PriorityID = 3)
+            if (ticket.getPriority() != null && ticket.getPriority().getPriorityId() == 3) {
+                highPriorityCount++;
+            }
+        }
+
+        // 4. Créer et remplir le DTO de retour
+        TechnicianDashboardStatsDTO stats = new TechnicianDashboardStatsDTO();
+        // Utilise le prénom et le nom s'ils existent, sinon le username
+        String techFullName = (technician.getFirstName() != null && !technician.getFirstName().isEmpty())
+                ? technician.getFirstName() + " " + technician.getLastName()
+                : technician.getUsername();
+
+        stats.setTechnicianName(techFullName);
+        stats.setTotalTickets(assignedTickets.size());
+        stats.setResolvedCount(resolvedCount);
+        stats.setInProgressCount(inProgressCount);
+        stats.setHighPriorityCount(highPriorityCount);
+        stats.setUnresolvedCount(unresolvedCount);
+
+        return stats;
+    }
+
+    @Override
+    public List<Ticket> findTicketsAssignedToWithSearch(User technician, String keyword) {
+        // Si le mot-clé est nul ou vide, on renvoie tous les tickets assignés.
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return ticketRepository.findByAssignedToOrderByCreatedAtDesc(technician);
+        }
+        // Sinon, on appelle la nouvelle méthode de recherche.
+        return ticketRepository.searchAssignedTickets(technician, keyword);
+    }
+
+    @Override
+    public List<Ticket> findSortedTicketsAssignedTo(User technician, String sortField, String sortDir) {
+        // Crée un objet de tri basé sur les paramètres.
+        // Si la direction est "asc", tri ascendant, sinon descendant.
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
+                Sort.by(sortField).ascending() :
+                Sort.by(sortField).descending();
+
+        // Appelle la nouvelle méthode du repository
+        return ticketRepository.findByAssignedTo(technician, sort);
+    }
+
+    @Override
+    public List<Ticket> findAndFilterTickets(User technician, String statusFilter, String keyword, String sortField, String sortDir) {
+        // Cette méthode utilise DÉJÀ votre méthode findAndFilterAssignedTickets.
+        // Aucune modification n'est nécessaire ici.
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
+                Sort.by(sortField).ascending() :
+                Sort.by(sortField).descending();
+
+        List<Integer> statusIds = null;
+        if (statusFilter != null && !statusFilter.isEmpty()) {
+            switch (statusFilter) {
+                case "active":
+                    statusIds = List.of(1, 2);
+                    break;
+                case "pending":
+                    statusIds = List.of(2); // Ou votre logique pour "Pending"
+                    break;
+                case "resolved":
+                    statusIds = List.of(3);
+                    break;
+            }
+        }
+
+        String searchKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+
+        return ticketRepository.findAndFilterAssignedTickets(technician, searchKeyword, statusIds, sort);
+    }
+
+    //details tickets
+    @Override
+    @Transactional
+    public TicketDetailDTO getTicketDetailsById(Long ticketId) {
+        // La première partie de votre méthode ne change pas
+        Ticket ticket = ticketRepository.findById(ticketId) // NOTE: J'ai retiré "WithDetails" pour simplifier
+                .orElseThrow(() -> new EntityNotFoundException("Ticket not found with id: " + ticketId));
+
+        TicketDetailDTO dto = new TicketDetailDTO();
+        dto.setTicketId(ticket.getTicketId());
+        dto.setTitle(ticket.getTitle());
+        dto.setDescription(ticket.getDescription());
+
+        // Formatage des dates
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+        dto.setCreatedAt(ticket.getCreatedAt().format(formatter));
+        dto.setUpdatedAt(ticket.getUpdatedAt().format(formatter));
+
+        // Informations de statut, priorité, type avec classes CSS pour les badges
+        dto.setStatus(ticket.getStatus().getStatusName());
+        dto.setStatusClass(getStatusCssClass(ticket.getStatus().getStatusName()));
+        dto.setPriority(ticket.getPriority().getPriorityName());
+        dto.setPriorityClass(getPriorityCssClass(ticket.getPriority().getPriorityName()));
+        dto.setType(ticket.getType().getTypeName());
+
+        // Créateur du ticket
+        dto.setCreatedBy(createUserSummary(ticket.getCreatedBy()));
+
+        // Technicien assigné (peut être null)
+        if (ticket.getAssignedTo() != null) {
+            dto.setAssignedTo(createUserSummary(ticket.getAssignedTo()));
+        }
+
+        // Liste des commentaires (votre code existant)
+        dto.setComments(ticket.getComments().stream()
+                .map(comment -> new CommentDTO(
+                        getFullName(comment.getUser()), // Utilise la nouvelle méthode
+                        getInitials(comment.getUser()),
+                        comment.getComment(),
+                        comment.getCreatedAt().format(formatter)
+                ))
+                .collect(Collectors.toList()));
+
+        // Update
+        dto.setStatusId(ticket.getStatus().getStatusId());
+        dto.setPriorityId(ticket.getPriority().getPriorityId());
+
+
+        // ===================================================================
+        //  AJOUT DE LA LOGIQUE SIMPLIFIÉE POUR L'HISTORIQUE
+        // ===================================================================
+        List<HistoryEntryDTO> historyEntries = new ArrayList<>();
+
+        // A. Événement de création du ticket
+        historyEntries.add(new HistoryEntryDTO(
+                "Ticket created",
+                getFullName(ticket.getCreatedBy()),
+                ticket.getCreatedAt().format(formatter),
+                ticket.getCreatedAt()
+        ));
+
+        // B. Récupérer les changements de statut depuis la DB
+        List<TicketStatusHistory> statusChanges = ticketStatusHistoryRepository.findByTicket_TicketIdOrderByChangedAtAsc(ticketId);
+        for (TicketStatusHistory statusChange : statusChanges) {
+            String description = "Status changed to \"" + statusChange.getStatus().getStatusName() + "\"";
+            historyEntries.add(new HistoryEntryDTO(
+                    description,
+                    getFullName(statusChange.getChangedBy()),
+                    statusChange.getChangedAt().format(formatter),
+                    statusChange.getChangedAt()
+            ));
+        }
+
+        // C. Récupérer les commentaires depuis la DB pour les ajouter aussi à l'historique
+        // Note: on utilise la liste déjà chargée par Hibernate grâce à la relation
+        for (TicketComment comment : ticket.getComments()) {
+            String description = "Comment added: \"" + truncate(comment.getComment()) + "\"";
+            historyEntries.add(new HistoryEntryDTO(
+                    description,
+                    getFullName(comment.getUser()),
+                    comment.getCreatedAt().format(formatter),
+                    comment.getCreatedAt()
+            ));
+        }
+
+        // D. Trier la liste fusionnée par date (du plus récent au plus ancien)
+        historyEntries.sort(Comparator.comparing(HistoryEntryDTO::getRawTimestamp).reversed());
+
+        // E. Ajouter la liste triée au DTO final
+        dto.setHistory(historyEntries);
+        // ===================================================================
+        // FIN DE LA LOGIQUE D'HISTORIQUE
+        // ===================================================================
+
+        return dto;
+    }
+
+// --- MÉTHODES UTILITAIRES À AJOUTER OU À VÉRIFIER ---
+
+    // Votre méthode existante, légèrement modifiée pour utiliser getFullName
+    private UserSummaryDTO createUserSummary(User user) {
+        if (user == null) return null;
+        return new UserSummaryDTO(getFullName(user), getInitials(user));
+    }
+
+    // Votre méthode existante, pas de changement
+    private String getInitials(User user) {
+        if (user == null) return "";
+        String firstName = user.getFirstName();
+        String lastName = user.getLastName();
+        if (firstName != null && !firstName.isEmpty() && lastName != null && !lastName.isEmpty()) {
+            return ("" + firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+        }
+        return user.getUsername().substring(0, Math.min(user.getUsername().length(), 2)).toUpperCase();
+    }
+
+    // NOUVELLE méthode utilitaire pour avoir le nom complet de manière cohérente
+    private String getFullName(User user) {
+        if (user == null) return "System"; // Cas où l'auteur n'est pas défini
+        if (user.getFirstName() != null && !user.getFirstName().trim().isEmpty()) {
+            return user.getFirstName() + " " + user.getLastName();
+        }
+        return user.getUsername();
+    }
+
+    // NOUVELLE méthode utilitaire pour raccourcir les longs commentaires dans l'historique
+    private String truncate(String text) {
+        if (text == null || text.length() <= 50) {
+            return text;
+        }
+        return text.substring(0, 47) + "...";
+    }
+
+    // Vos méthodes pour les classes CSS, pas de changement
+    private String getStatusCssClass(String statusName) {
+        // ... votre code existant
+        switch (statusName.toLowerCase()) {
+            case "open": return "badge-open";
+            case "in progress": return "badge-in-progress";
+            case "resolved": return "badge-resolved";
+            case "closed": return "badge-closed";
+            default: return "bg-secondary";
+        }
+    }
+
+    private String getPriorityCssClass(String priorityName) {
+        // ... votre code existant
+        switch (priorityName.toLowerCase()) {
+            case "low": return "badge-low";
+            case "medium": return "badge-medium";
+            case "high": return "badge-high";
+            default: return "bg-secondary";
+        }
+
+
+    }
+
+
+    @Override
+    @Transactional
+    public void updateTicketStatusAndPriority(Long ticketId, Integer statusId, Integer priorityId, User changedBy) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new EntityNotFoundException("Ticket not found with id: " + ticketId));
+
+        boolean hasChanges = false;
+
+        // 1. Vérifier et mettre à jour le statut
+        if (statusId != null && !statusId.equals(ticket.getStatus().getStatusId())) {
+            TicketStatus newStatus = ticketStatusRepository.findById(statusId)
+                    .orElseThrow(() -> new EntityNotFoundException("Status with id " + statusId + " not found"));
+            ticket.setStatus(newStatus);
+
+            // !! POINT CLÉ : Enregistrer l'événement dans l'historique !!
+            TicketStatusHistory historyEvent = new TicketStatusHistory(ticket, newStatus, changedBy);
+            ticketStatusHistoryRepository.save(historyEvent);
+
+            hasChanges = true;
+        }
+
+        // 2. Vérifier et mettre à jour la priorité
+        if (priorityId != null && !priorityId.equals(ticket.getPriority().getPriorityId())) {
+            TicketPriority newPriority = ticketPriorityRepository.findById(priorityId)
+                    .orElseThrow(() -> new EntityNotFoundException("Priority with id " + priorityId + " not found"));
+            ticket.setPriority(newPriority);
+            hasChanges = true;
+        }
+
+        // 3. Sauvegarder le ticket seulement si des changements ont eu lieu
+        if (hasChanges) {
+            ticketRepository.save(ticket);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void addCommentToTicket(Long ticketId, String commentText, User author) {
+        // 1. Valider les entrées
+        if (commentText == null || commentText.trim().isEmpty()) {
+            throw new IllegalArgumentException("Comment text cannot be empty.");
+        }
+
+        // 2. Récupérer le ticket auquel le commentaire sera attaché
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new EntityNotFoundException("Ticket not found with id: " + ticketId));
+
+        // 3. Créer la nouvelle entité Commentaire
+        TicketComment newComment = new TicketComment();
+        newComment.setTicket(ticket);
+        newComment.setUser(author);
+        newComment.setComment(commentText);
+        newComment.setCreatedAt(LocalDateTime.now()); // La date est définie automatiquement, mais c'est bien de l'expliciter
+
+        // 4. Sauvegarder le commentaire. Grâce à la cascade, le ticket sera aussi mis à jour (UpdatedAt)
+        ticketCommentRepository.save(newComment);
+
+        // Optionnel mais recommandé : Mettre à jour manuellement le champ UpdatedAt du ticket
+        // car l'ajout d'un commentaire est une modification du ticket.
+        ticket.setUpdatedAt(LocalDateTime.now());
+        ticketRepository.save(ticket);
+    }
+
 
 }
 

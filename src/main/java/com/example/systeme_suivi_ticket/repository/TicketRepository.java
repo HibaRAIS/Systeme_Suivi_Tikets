@@ -3,12 +3,14 @@ package com.example.systeme_suivi_ticket.repository;
 import com.example.systeme_suivi_ticket.model.Ticket;
 import com.example.systeme_suivi_ticket.model.TicketStatus;
 import com.example.systeme_suivi_ticket.model.User;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
     long countByStatus(TicketStatus status);
@@ -69,5 +71,35 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     @Query("SELECT YEAR(t.createdAt), COUNT(t.ticketId) FROM Ticket t WHERE t.createdAt >= :startDate GROUP BY YEAR(t.createdAt)")
     List<Object[]> findYearlyTicketCreationCounts(@Param("startDate") LocalDateTime startDate);
+
+    //Technicien
+    //  MÉTHODE POUR LA RECHERCHE DANS TECHNICIAN
+    @Query("SELECT t FROM Ticket t WHERE t.assignedTo = :technician AND " +
+            "(LOWER(t.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "ORDER BY t.createdAt DESC")
+    List<Ticket> searchAssignedTickets(@Param("technician") User technician, @Param("keyword") String keyword);
+    // NOUVELLE méthode qui accepte un objet Sort
+    List<Ticket> findByAssignedTo(User technician, Sort sort);
+    // NOUVELLE méthode pour la recherche et le filtre combinés
+    @Query("SELECT t FROM Ticket t " +
+            "LEFT JOIN t.status s " +
+            "LEFT JOIN t.priority p " +
+            "LEFT JOIN t.createdBy c " +
+            "WHERE t.assignedTo = :technician " +
+            "AND (:keyword IS NULL OR " +
+            "    LOWER(t.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "    LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:statusIds IS NULL OR s.statusId IN :statusIds)")
+    List<Ticket> findAndFilterAssignedTickets(@Param("technician") User technician,
+                                              @Param("keyword") String keyword,
+                                              @Param("statusIds") List<Integer> statusIds,
+                                              Sort sort);
+
+    //Details
+    @Query("SELECT t FROM Ticket t LEFT JOIN FETCH t.comments c LEFT JOIN FETCH c.user WHERE t.ticketId = :id")
+    Optional<Ticket> findByIdWithDetails(@Param("id") Long id);
+
 }
+
 

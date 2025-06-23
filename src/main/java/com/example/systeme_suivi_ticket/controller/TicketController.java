@@ -11,6 +11,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.example.systeme_suivi_ticket.service.EmailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,12 +56,15 @@ public class TicketController {
 	private final TicketService ticketService;
 	private DashboardService dashboardService;
 	private final TicketCommentRepository ticketCommentRepository;
+	private static final Logger logger = LoggerFactory.getLogger(TicketController.class);
+	@Autowired
+	private EmailService emailService;
 
 	// Constructor injection for all dependencies
 	public TicketController(UserRepository userRepository, TicketRepository ticketRepository,
-			TicketPriorityRepository ticketPriorityRepository, TicketTypeRepository ticketTypeRepository,
-			TicketStatusRepository ticketStatusRepository, UserService userService, TicketService ticketService,
-			DashboardService dashboardService, TicketCommentRepository ticketCommentRepository) {
+							TicketPriorityRepository ticketPriorityRepository, TicketTypeRepository ticketTypeRepository,
+							TicketStatusRepository ticketStatusRepository, UserService userService, TicketService ticketService,
+							DashboardService dashboardService, TicketCommentRepository ticketCommentRepository) {
 		this.userRepository = userRepository;
 		this.ticketRepository = ticketRepository;
 		this.ticketPriorityRepository = ticketPriorityRepository;
@@ -71,8 +78,8 @@ public class TicketController {
 
 	@PostMapping("/user/tickets/create")
 	public String createTicket(@RequestParam("title") String title, @RequestParam("description") String description,
-			@RequestParam("priorityId") Integer priorityId,
-			@RequestParam(value = "typeId", required = false) Integer typeId, Principal principal) {
+							   @RequestParam("priorityId") Integer priorityId,
+							   @RequestParam(value = "typeId", required = false) Integer typeId, Principal principal) {
 		try {
 
 			if (principal == null) {
@@ -103,7 +110,16 @@ public class TicketController {
 				ticket.setType(type);
 			}
 
-			ticketRepository.save(ticket);
+			Ticket savedTicket = ticketRepository.save(ticket);
+
+			// 4. Envoyer l'email de confirmation !
+			try {
+				emailService.sendTicketCreationConfirmation(savedTicket);
+			} catch (Exception e) {
+				// C'est une bonne pratique de ne pas bloquer l'utilisateur si l'email ne part pas.
+				// On peut juste logger l'erreur.
+				logger.error("Erreur lors de l'envoi de l'email de confirmation pour le ticket #" + savedTicket.getTicketId(), e);
+			}
 
 			return "redirect:/user/tickets";
 
@@ -115,10 +131,10 @@ public class TicketController {
 
 	@GetMapping("/tickets")
 	public String getTickets(@RequestParam(name = "statusId", required = false) Integer statusId,
-			@RequestParam(name = "priorityId", required = false) Integer priorityId,
-			@RequestParam(name = "typeId", required = false) Integer typeId,
-			@RequestParam(name = "search", required = false) String search, Model model, Principal principal,
-			@RequestHeader(value = "X-Requested-With", required = false) String requestedWith) {
+							 @RequestParam(name = "priorityId", required = false) Integer priorityId,
+							 @RequestParam(name = "typeId", required = false) Integer typeId,
+							 @RequestParam(name = "search", required = false) String search, Model model, Principal principal,
+							 @RequestHeader(value = "X-Requested-With", required = false) String requestedWith) {
 
 		// Récupérer l'utilisateur connecté
 		String username = principal.getName();
@@ -219,7 +235,7 @@ public class TicketController {
 	@PostMapping("/user/tickets/{ticketId}/comments")
 	@ResponseBody
 	public ResponseEntity<?> addComment(@PathVariable("ticketId") Long ticketId,
-			@RequestParam("commentText") String commentText, Principal principal) {
+										@RequestParam("commentText") String commentText, Principal principal) {
 
 		User user = userRepository.findByUsername(principal.getName())
 				.orElseThrow(() -> new RuntimeException("Authenticated user not found in database."));
@@ -257,10 +273,10 @@ public class TicketController {
 	// Partie tickets d Admiiin
 	@GetMapping("/admin/tickets")
 	public String filterTickets(@RequestParam(required = false) Integer statusId,
-			@RequestParam(required = false) Integer priorityId, @RequestParam(required = false) Integer typeId,
-			@RequestParam(required = false) Long assignedToId, @RequestParam(required = false) String keyword,
-			@RequestParam(required = false) String dateRange, @RequestParam(required = false) String startDate,
-			@RequestParam(required = false) String endDate, Model model) {
+								@RequestParam(required = false) Integer priorityId, @RequestParam(required = false) Integer typeId,
+								@RequestParam(required = false) Long assignedToId, @RequestParam(required = false) String keyword,
+								@RequestParam(required = false) String dateRange, @RequestParam(required = false) String startDate,
+								@RequestParam(required = false) String endDate, Model model) {
 
 		LocalDateTime startDateTime = null;
 		LocalDateTime endDateTime = null;
@@ -268,33 +284,33 @@ public class TicketController {
 
 		if (dateRange != null) {
 			switch (dateRange) {
-			case "today":
-				startDateTime = today.atStartOfDay();
-				endDateTime = today.atTime(23, 59, 59);
-				break;
-			case "week":
-				startDateTime = today.with(java.time.DayOfWeek.MONDAY).atStartOfDay();
-				endDateTime = today.with(java.time.DayOfWeek.SUNDAY).atTime(23, 59, 59);
-				break;
-			case "month":
-				startDateTime = today.withDayOfMonth(1).atStartOfDay();
-				endDateTime = today.withDayOfMonth(today.lengthOfMonth()).atTime(23, 59, 59);
-				break;
-			case "custom":
-				try {
-					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-					if (startDate != null && !startDate.isEmpty()) {
-						startDateTime = LocalDate.parse(startDate, formatter).atStartOfDay();
+				case "today":
+					startDateTime = today.atStartOfDay();
+					endDateTime = today.atTime(23, 59, 59);
+					break;
+				case "week":
+					startDateTime = today.with(java.time.DayOfWeek.MONDAY).atStartOfDay();
+					endDateTime = today.with(java.time.DayOfWeek.SUNDAY).atTime(23, 59, 59);
+					break;
+				case "month":
+					startDateTime = today.withDayOfMonth(1).atStartOfDay();
+					endDateTime = today.withDayOfMonth(today.lengthOfMonth()).atTime(23, 59, 59);
+					break;
+				case "custom":
+					try {
+						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+						if (startDate != null && !startDate.isEmpty()) {
+							startDateTime = LocalDate.parse(startDate, formatter).atStartOfDay();
+						}
+						if (endDate != null && !endDate.isEmpty()) {
+							endDateTime = LocalDate.parse(endDate, formatter).atTime(23, 59, 59);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-					if (endDate != null && !endDate.isEmpty()) {
-						endDateTime = LocalDate.parse(endDate, formatter).atTime(23, 59, 59);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				break;
-			default:
-				break;
+					break;
+				default:
+					break;
 			}
 		}
 
@@ -323,8 +339,8 @@ public class TicketController {
 
 	@PostMapping("/admin/tickets/create")
 	public String createTicketByAdmin(@RequestParam String title, @RequestParam String description,
-			@RequestParam Integer priorityId, @RequestParam Integer typeId, @RequestParam Long createdById,
-			@RequestParam(required = false) Long assignedToUserId) {
+									  @RequestParam Integer priorityId, @RequestParam Integer typeId, @RequestParam Long createdById,
+									  @RequestParam(required = false) Long assignedToUserId) {
 		Ticket ticket = new Ticket();
 		ticket.setTitle(title);
 		ticket.setDescription(description);
@@ -383,7 +399,7 @@ public class TicketController {
 
 	@PostMapping("/tickets/edit")
 	public String updateTicket(@ModelAttribute("ticketToEdit") Ticket updatedTicket,
-			RedirectAttributes redirectAttributes) {
+							   RedirectAttributes redirectAttributes) {
 		try {
 			// The updatedTicket object is bound from the form.
 			// We just need to ensure the full related objects are set before saving.

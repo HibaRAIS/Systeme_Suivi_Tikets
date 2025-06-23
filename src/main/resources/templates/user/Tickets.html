@@ -591,6 +591,8 @@
                                 </div>
                                 <div class="mt-4">
                                     <form id="add-comment-form">
+                                        <!-- ADD THIS HIDDEN INPUT -->
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                         <div class="mb-3">
                                             <label for="comment-text" class="form-label">Add Comment</label>
                                             <textarea class="form-control" id="comment-text" rows="3" required></textarea>
@@ -709,103 +711,109 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const buttons = document.querySelectorAll(".view-ticket-btn");
+        let currentTicketId = null;
+        const ticketDetailsModal = new bootstrap.Modal(document.getElementById('ticketDetailsModal'));
 
-      buttons.forEach((button) => {
-        button.addEventListener("click", function () {
-          const ticketId = this.getAttribute("data-ticket-id");
-
-          fetch(`/user/tickets/details/${ticketId}`)
-            .then(response => response.json())
-            .then(data => {
-              // Fill modal fields
-              document.getElementById("detail-ticket-title").textContent = data.title;
-              document.getElementById("detail-ticket-id").textContent = "Ticket #" + data.ticketId;
-              document.getElementById("detail-ticket-status").textContent = data.status;
-              document.getElementById("detail-ticket-priority").textContent = data.priority;
-              document.getElementById("detail-ticket-type").textContent = data.type;
-              document.getElementById("detail-ticket-created").textContent = data.createdAt;
-              document.getElementById("detail-ticket-description").textContent = data.description;
-              document.getElementById("detail-created-by").textContent = data.createdBy;
-              document.getElementById("detail-assigned-to").textContent = data.assignedTo ?? "Unassigned";
-              document.getElementById("detail-updated-at").textContent = data.updatedAt;
-
-              // Load comments
-              const commentsContainer = document.getElementById("comments-list");
-              commentsContainer.innerHTML = '';
-              data.comments.forEach(comment => {
-                const div = document.createElement("div");
-                div.innerHTML = `<strong>${comment.username}</strong>: ${comment.comment}`;
-                commentsContainer.appendChild(div);
-              });
-
-              // Load history
-              const historyContainer = document.getElementById("ticket-history");
-              historyContainer.innerHTML = '';
-              data.history.forEach(entry => {
-                const li = document.createElement("li");
-                li.textContent = `${entry.status} by ${entry.changedBy} at ${entry.changedAt}`;
-                historyContainer.appendChild(li);
-              });
+        // --- Event Listener for All "View Details" Buttons ---
+        document.querySelectorAll(".view-ticket-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                currentTicketId = this.getAttribute("data-ticket-id");
+                loadTicketDetails(currentTicketId);
             });
         });
-      });
+
+        // --- Event Listener for Comment Form Submission ---
+        document.getElementById("add-comment-form").addEventListener("submit", function (e) {
+            e.preventDefault(); // Prevent default form submission
+            postComment(currentTicketId);
+        });
+
+        // --- Function to Load All Ticket Details (including comments and history) ---
+        function loadTicketDetails(ticketId) {
+            fetch(`/user/tickets/details/${ticketId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Fill modal fields
+                    document.getElementById("detail-ticket-title").textContent = data.title;
+                    document.getElementById("detail-ticket-status").textContent = data.status;
+                    document.getElementById("detail-ticket-priority").textContent = data.priority;
+                    document.getElementById("detail-ticket-type").textContent = data.type;
+                    document.getElementById("detail-ticket-created").textContent = new Date(data.createdAt).toLocaleString();
+                    document.getElementById("detail-ticket-description").textContent = data.description;
+                    document.getElementById("detail-created-by").textContent = data.createdBy;
+                    document.getElementById("detail-assigned-to").textContent = data.assignedTo ?? "Unassigned";
+                    document.getElementById("detail-updated-at").textContent = new Date(data.updatedAt).toLocaleString();
+
+                    // Display comments
+                    const commentsContainer = document.getElementById("comments-list");
+                    commentsContainer.innerHTML = ''; // Clear previous comments
+                    data.comments.forEach(c => {
+                        const commentHtml = `
+                          <div class="mb-2">
+                            <strong>${c.username}</strong> <small class="text-muted">${new Date(c.createdAt).toLocaleString()}</small>
+                            <p class="mb-0">${c.comment}</p>
+                          </div>`;
+                        commentsContainer.innerHTML += commentHtml;
+                    });
+
+                    // Display history
+                    const historyContainer = document.getElementById("ticket-history");
+                    historyContainer.innerHTML = ''; // Clear previous history
+                    data.history.forEach(entry => {
+                        const li = document.createElement("li");
+                        li.textContent = `${entry.status} by ${entry.changedBy} at ${new Date(entry.changedAt).toLocaleString()}`;
+                        historyContainer.appendChild(li);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching ticket details:', error);
+                    alert('Could not load ticket details.');
+                });
+        }
+
+        // --- Function to Post a New Comment ---
+        function postComment(ticketId) {
+            const commentForm = document.getElementById("add-comment-form");
+            const commentText = document.getElementById("comment-text").value;
+
+            // Get the CSRF token from the hidden input field
+            const csrfToken = commentForm.querySelector('input[name="_csrf"]').value;
+            const csrfHeaderName = commentForm.querySelector('input[name="_csrf"]').name;
+
+            if (!commentText.trim()) return; // Don't post empty comments
+
+            const formData = new URLSearchParams();
+            formData.append('commentText', commentText);
+            formData.append(csrfHeaderName, csrfToken); // Add CSRF token to the form data
+
+            fetch(`/user/tickets/${ticketId}/comments`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: formData.toString() // Send the form data as the body
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById("comment-text").value = ""; // Clear textarea
+                    loadTicketDetails(ticketId); // Reload details to show the new comment
+                } else {
+                    // More specific error handling
+                    response.json().then(err => console.error(err));
+                    alert("Error posting comment. See console for details.");
+                }
+            })
+            .catch(error => {
+                console.error('Error posting comment:', error);
+                alert("A network error occurred while posting the comment.");
+            });
+        }
     });
 </script>
-
-<script>
-    let currentTicketId = null;
-
-    // Open modal and remember ticket ID
-    document.querySelectorAll(".view-ticket-btn").forEach(btn => {
-      btn.addEventListener("click", function () {
-        currentTicketId = this.getAttribute("data-ticket-id");
-        loadComments(currentTicketId);
-      });
-    });
-
-    // Submit new comment
-    document.getElementById("add-comment-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      const commentText = document.getElementById("comment-text").value;
-
-      fetch(`/user/tickets/${currentTicketId}/comments`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: `commentText=${encodeURIComponent(commentText)}`
-      })
-        .then(response => {
-          if (response.ok) {
-            document.getElementById("comment-text").value = "";
-            loadComments(currentTicketId);
-          } else {
-            alert("Error posting comment.");
-          }
-        });
-    });
-
-    // Load comments
-    function loadComments(ticketId) {
-      fetch(`/user/tickets/${ticketId}/comments`)
-        .then(res => res.json())
-        .then(data => {
-          const commentsList = document.getElementById("comments-list");
-          commentsList.innerHTML = "";
-
-          data.forEach(c => {
-            const commentHtml = `
-              <div class="mb-2">
-                <strong>${c.username}</strong> <small class="text-muted">${c.createdAt}</small>
-                <p>${c.comment}</p>
-              </div>`;
-            commentsList.innerHTML += commentHtml;
-          });
-        });
-    }
-</script>
-
 </body>
 </html>

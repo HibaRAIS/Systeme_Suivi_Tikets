@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
+    <!-- AJOUT : Ces deux balises rendent le token CSRF accessible au JavaScript -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Tickets - IT Support Ticket System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -148,12 +151,12 @@
         </a>
         <ul class="nav flex-column mt-3">
             <li class="nav-item">
-                <a class="nav-link" href="Dashboard.html">
+                <a class="nav-link" href="/technician/dashboard">
                     <i class="bi bi-speedometer2"></i> Dashboard
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" href="my-tickets.html">
+                <a class="nav-link active" href="/technician/my-tickets">
                     <i class="bi bi-ticket-perforated"></i> My Tickets
                 </a>
             </li>
@@ -164,18 +167,18 @@
             <div class="dropdown">
                 <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                     <i class="bi bi-person-circle me-2"></i>
-                    <span id="username">Tech Name</span>
+                    <span id="username" th:text="${username}">Tech Name</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-dark w-100">
-                    <li><a class="dropdown-item" href="../index.html"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                    <li><a class="dropdown-item" href="#" id="logout-btn"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
                 </ul>
             </div>
         </div>
     </div>
 
-    <!-- Page Content -->
+    <!-- Page Content
     <div id="content">
-        <!-- Top Navigation for mobile (optional) -->
+       Top Navigation for mobile (optional)
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark d-md-none">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">Tech Portal</a>
@@ -183,250 +186,330 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
             </div>
-        </nav>
+        </nav>-->
 
-        <!-- Main Content -->
-        <div class="container-fluid py-4 main-content">
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center">
-                        <div>
-                            <h2><i class="bi bi-ticket-perforated me-2"></i>My Tickets</h2>
-                            <p class="text-muted">Here you can view and manage all your assigned tickets.</p>
-                        </div>
-
+    <!-- Main Content -->
+    <div class="container-fluid py-4 main-content">
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="d-flex flex-wrap justify-content-between align-items-center">
+                    <div>
+                        <h2><i class="bi bi-ticket-perforated me-2"></i>My Tickets</h2>
+                        <p class="text-muted">Here you can view and manage all your assigned tickets.</p>
                     </div>
-                    <hr>
+
                 </div>
+                <hr>
             </div>
+        </div>
 
 
 
-            <!-- Tab Navigation -->
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-header bg-white p-0 border-0">
-                            <ul class="nav nav-tabs" id="ticketTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
-                                        All Tickets <span class="badge bg-secondary ms-1">24</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">
-                                        Active <span class="badge bg-primary ms-1">8</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
-                                        Pending <span class="badge bg-warning text-dark ms-1">4</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab">
-                                        Resoleved <span class="badge bg-success ms-1">12</span>
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="card-body">
-                            <div class="tab-content" id="ticketTabsContent">
-                                <div class="tab-pane fade show active" id="all" role="tabpanel">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <div class="input-group" style="max-width: 300px;">
-                                            <input type="text" class="form-control" placeholder="Search tickets...">
-                                            <button class="btn btn-outline-secondary" type="button"><i class="bi bi-search"></i></button>
-                                        </div>
-                                        <div class="dropdown">
-                                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="ticketSortDropdown" data-bs-toggle="dropdown">
-                                                Sort by: Priority
-                                            </button>
-                                            <ul class="dropdown-menu" aria-labelledby="ticketSortDropdown">
-                                                <li><a class="dropdown-item" href="#">Priority (High-Low)</a></li>
-                                                <li><a class="dropdown-item" href="#">Date (Newest)</a></li>
-                                                <li><a class="dropdown-item" href="#">Date (Oldest)</a></li>
-                                                <li><a class="dropdown-item" href="#">Status</a></li>
-                                            </ul>
-                                        </div>
+        <!-- Tab Navigation -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white p-0 border-0">
+                        <!-- Dans my-tickets.html -->
+                        <ul class="nav nav-tabs" id="ticketTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <!-- Le th:classappend ajoute la classe 'active' si le filtre correspond -->
+                                <a class="nav-link" th:href="@{/technician/my-tickets(statusFilter='all')}"
+                                   th:classappend="${statusFilter == 'all' ? 'active' : ''}">
+                                    All Tickets
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" th:href="@{/technician/my-tickets(statusFilter='active')}"
+                                   th:classappend="${statusFilter == 'active' ? 'active' : ''}">
+                                    Active
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" th:href="@{/technician/my-tickets(statusFilter='pending')}"
+                                   th:classappend="${statusFilter == 'pending' ? 'active' : ''}">
+                                    Pending
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" th:href="@{/technician/my-tickets(statusFilter='resolved')}"
+                                   th:classappend="${statusFilter == 'resolved' ? 'active' : ''}">
+                                    Resolved
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="ticketTabsContent">
+                            <div class="tab-pane fade show active" id="all" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="input-group" style="max-width: 300px;">
+                                        <form th:action="@{/technician/my-tickets}" method="GET">
+                                            <!-- Champ caché pour conserver le filtre de statut actuel lors d'une recherche -->
+                                            <input type="hidden" name="statusFilter" th:value="${statusFilter}">
+
+                                            <div class="input-group" style="max-width: 300px;">
+                                                <input type="text" class="form-control" placeholder="Search tickets..." name="keyword" th:value="${keyword}">
+                                                <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
+                                            </div>
+                                        </form>
                                     </div>
-
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                        <tr>
-                                            <th scope="col">#</th>
-                                            <th scope="col">Subject</th>
-                                            <th scope="col">Status</th>
-                                            <th scope="col">Priority</th>
-                                            <th scope="col">Requester</th>
-                                            <th scope="col">Last Updated</th>
-                                            <th scope="col">Actions</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <!-- High Priority Ticket -->
-                                        <tr class="ticket-priority-high">
-                                            <th scope="row">1234</th>
-                                            <td>Cannot connect to VPN</td>
-                                            <td><span class="badge bg-warning text-dark">In Progress</span></td>
-                                            <td><span class="badge bg-danger">High</span></td>
-                                            <td>Sarah Johnson</td>
-                                            <td>2025-05-18</td>
-                                            <td>
-                                                <a href="ticket-details.html?id=1234" class="btn btn-sm btn-primary">
-                                                    <i class="bi bi-eye"></i> View
-                                                </a>
-                                            </td>
-                                        </tr>
-
-                                        <!-- Medium Priority Ticket -->
-                                        <tr class="ticket-priority-medium">
-                                            <th scope="row">1233</th>
-                                            <td>Software Update Required</td>
-                                            <td><span class="badge bg-primary">Active</span></td>
-                                            <td><span class="badge bg-warning text-dark">Medium</span></td>
-                                            <td>Michael Chen</td>
-                                            <td>2025-05-17</td>
-                                            <td>
-                                                <a href="ticket-details.html?id=1233" class="btn btn-sm btn-primary">
-                                                    <i class="bi bi-eye"></i> View
-                                                </a>
-                                            </td>
-                                        </tr>
-
-                                        <!-- Low Priority Ticket -->
-                                        <tr class="ticket-priority-low">
-                                            <th scope="row">1232</th>
-                                            <td>Email Signature Update</td>
-                                            <td><span class="badge bg-success">Resoleved</span></td>
-                                            <td><span class="badge bg-success">Low</span></td>
-                                            <td>Emily Wilson</td>
-                                            <td>2025-05-16</td>
-                                            <td>
-                                                <a href="ticket-details.html?id=1232" class="btn btn-sm btn-primary">
-                                                    <i class="bi bi-eye"></i> View
-                                                </a>
-                                            </td>
-                                        </tr>
-
-                                        <!-- High Priority Ticket -->
-                                        <tr class="ticket-priority-high">
-                                            <th scope="row">1231</th>
-                                            <td>Database Connection Error in Accounting App</td>
-                                            <td><span class="badge bg-danger">Pending</span></td>
-                                            <td><span class="badge bg-danger">High</span></td>
-                                            <td>Robert Taylor</td>
-                                            <td>2025-05-15</td>
-                                            <td>
-                                                <a href="ticket-details.html?id=1231" class="btn btn-sm btn-primary">
-                                                    <i class="bi bi-eye"></i> View
-                                                </a>
-                                            </td>
-                                        </tr>
-
-                                        <!-- Medium Priority Ticket -->
-                                        <tr class="ticket-priority-medium">
-                                            <th scope="row">1230</th>
-                                            <td>New User Account Setup</td>
-                                            <td><span class="badge bg-warning text-dark">In Progress</span></td>
-                                            <td><span class="badge bg-warning text-dark">Medium</span></td>
-                                            <td>Jennifer Lopez</td>
-                                            <td>2025-05-14</td>
-                                            <td>
-                                                <a href="ticket-details.html?id=1230" class="btn btn-sm btn-primary">
-                                                    <i class="bi bi-eye"></i> View
-                                                </a>
-                                            </td>
-                                        </tr>
-
-                                        <!-- Low Priority Ticket -->
-                                        <tr class="ticket-priority-low">
-                                            <th scope="row">1229</th>
-                                            <td>Projector Setup for Conference Room</td>
-                                            <td><span class="badge bg-success">Resoleved</span></td>
-                                            <td><span class="badge bg-success">Low</span></td>
-                                            <td>David Brown</td>
-                                            <td>2025-05-13</td>
-                                            <td>
-                                                <a href="ticket-details.html?id=1229" class="btn btn-sm btn-primary">
-                                                    <i class="bi bi-eye"></i> View
-                                                </a>
-                                            </td>
-                                        </tr>
-
-                                        <!-- High Priority Ticket -->
-                                        <tr class="ticket-priority-high">
-                                            <th scope="row">1228</th>
-                                            <td>Server Room Temperature Alert</td>
-                                            <td><span class="badge bg-success">Resoleved</span></td>
-                                            <td><span class="badge bg-danger">High</span></td>
-                                            <td>System Alert</td>
-                                            <td>2025-05-12</td>
-                                            <td>
-                                                <a href="ticket-details.html?id=1228" class="btn btn-sm btn-primary">
-                                                    <i class="bi bi-eye"></i> View
-                                                </a>
-                                            </td>
-                                        </tr>
-
-                                        <!-- Medium Priority Ticket -->
-                                        <tr class="ticket-priority-medium">
-                                            <th scope="row">1227</th>
-                                            <td>Printer Not Working in HR Department</td>
-                                            <td><span class="badge bg-success">Resoleved</span></td>
-                                            <td><span class="badge bg-warning text-dark">Medium</span></td>
-                                            <td>Karen White</td>
-                                            <td>2025-05-11</td>
-                                            <td>
-                                                <a href="ticket-details.html?id=1227" class="btn btn-sm btn-primary">
-                                                    <i class="bi bi-eye"></i> View
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-
-                                    <!-- Pagination -->
-                                    <nav aria-label="Ticket pagination" class="mt-4">
-                                        <ul class="pagination justify-content-center">
-                                            <li class="page-item disabled">
-                                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                                            </li>
-                                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                            <li class="page-item">
-                                                <a class="page-link" href="#">Next</a>
-                                            </li>
+                                    <!-- <div class="dropdown">
+                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="ticketSortDropdown" data-bs-toggle="dropdown">
+                                            Sort by: Priority
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="ticketSortDropdown">
+                                            <li><a class="dropdown-item" href="#">Priority (High-Low)</a></li>
+                                            <li><a class="dropdown-item" href="#">Date (Newest)</a></li>
+                                            <li><a class="dropdown-item" href="#">Date (Oldest)</a></li>
+                                            <li><a class="dropdown-item" href="#">Status</a></li>
                                         </ul>
-                                    </nav>
+                                    </div>-->
                                 </div>
 
-                                <!-- Other tabs content would go here -->
-                                <div class="tab-pane fade" id="active" role="tabpanel">
-                                    <div class="alert alert-info mb-3">
-                                        <i class="bi bi-info-circle me-2"></i> Showing tickets with Active or In Progress status.
-                                    </div>
-                                    <!-- Active tickets would be listed here -->
-                                </div>
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">
+                                            <a th:href="@{/technician/my-tickets(sortField='ticketId', sortDir=${sortField == 'ticketId' ? reverseSortDir : 'asc'})}">
+                                                #
+                                                <i th:if="${sortField == 'ticketId'}" th:class="${sortDir == 'asc' ? 'bi bi-sort-up' : 'bi bi-sort-down'}"></i>
+                                            </a>
+                                        </th>
+                                        <th scope="col">
+                                            <a th:href="@{/technician/my-tickets(sortField='title', sortDir=${sortField == 'title' ? reverseSortDir : 'asc'})}">
+                                                Subject
+                                                <i th:if="${sortField == 'title'}" th:class="${sortDir == 'asc' ? 'bi bi-sort-up' : 'bi bi-sort-down'}"></i>
+                                            </a>
+                                        </th>
+                                        <th scope="col">
+                                            <a th:href="@{/technician/my-tickets(sortField='status.statusName', sortDir=${sortField == 'status.statusName' ? reverseSortDir : 'asc'})}">
+                                                Status
+                                                <i th:if="${sortField == 'status.statusName'}" th:class="${sortDir == 'asc' ? 'bi bi-sort-up' : 'bi bi-sort-down'}"></i>
+                                            </a>
+                                        </th>
+                                        <th scope="col">
+                                            <a th:href="@{/technician/my-tickets(sortField='priority.priorityId', sortDir=${sortField == 'priority.priorityId' ? reverseSortDir : 'asc'})}">
+                                                Priority
+                                                <i th:if="${sortField == 'priority.priorityId'}" th:class="${sortDir == 'asc' ? 'bi bi-sort-up' : 'bi bi-sort-down'}"></i>
+                                            </a>
+                                        </th>
+                                        <th scope="col">
+                                            <a th:href="@{/technician/my-tickets(sortField='createdBy.firstName', sortDir=${sortField == 'createdBy.firstName' ? reverseSortDir : 'asc'})}">
+                                                Requester
+                                                <i th:if="${sortField == 'createdBy.firstName'}" th:class="${sortDir == 'asc' ? 'bi bi-sort-up' : 'bi bi-sort-down'}"></i>
+                                            </a>
+                                        </th>
+                                        <th scope="col">
+                                            <a th:href="@{/technician/my-tickets(sortField='updatedAt', sortDir=${sortField == 'updatedAt' ? reverseSortDir : 'asc'})}">
+                                                Last Updated
+                                                <i th:if="${sortField == 'updatedAt'}" th:class="${sortDir == 'asc' ? 'bi bi-sort-up' : 'bi bi-sort-down'}"></i>
+                                            </a>
+                                        </th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <!-- Tbody -->
+                                    <tbody>
+                                    <!-- Boucle sur chaque ticket de la liste 'tickets' fournie par le contrôleur -->
+                                    <tr th:each="ticket : ${tickets}" th:classappend="'ticket-priority-' + ${#strings.toLowerCase(ticket.priority.priorityName)}">
+                                        <th scope="row" th:text="${ticket.ticketId}">1234</th>
+                                        <td th:text="${ticket.title}">Cannot connect to VPN</td>
 
-                                <div class="tab-pane fade" id="pending" role="tabpanel">
-                                    <div class="alert alert-warning mb-3">
-                                        <i class="bi bi-exclamation-triangle me-2"></i> Showing tickets awaiting further action.
-                                    </div>
-                                    <!-- Pending tickets would be listed here -->
-                                </div>
+                                        <!-- Badge de statut dynamique -->
+                                        <td>
+                                                <span th:text="${ticket.status.statusName}"
+                                                      th:classappend="${#strings.equals(ticket.status.statusName, 'Open')} ? 'bg-primary' :
+                                                                       (${#strings.equals(ticket.status.statusName, 'In Progress')} ? 'bg-info text-dark' :
+                                                                       (${#strings.equals(ticket.status.statusName, 'Pending')} ? 'bg-warning text-dark' :
+                                                                       (${#strings.equals(ticket.status.statusName, 'Resolved')} ? 'bg-success' : 'bg-secondary')))"
+                                                      class="badge">
+                                                </span>
+                                        </td>
 
-                                <div class="tab-pane fade" id="completed" role="tabpanel">
-                                    <div class="alert alert-success mb-3">
-                                        <i class="bi bi-check-circle me-2"></i> Showing tickets that have been resolved.
-                                    </div>
-                                    <!-- Completed tickets would be listed here -->
+                                        <!-- Badge de priorité dynamique -->
+                                        <td>
+                                                <span th:text="${ticket.priority.priorityName}"
+                                                      th:classappend="${ticket.priority.priorityName == 'High' ? 'bg-danger' :
+                                                                       (ticket.priority.priorityName == 'Medium' ? 'bg-warning text-dark' : 'bg-success')}"
+                                                      class="badge">
+                                                </span>
+                                        </td>
+
+                                        <!-- Nom du demandeur (créateur du ticket) -->
+                                        <td th:text="${ticket.createdBy.firstName + ' ' + ticket.createdBy.lastName}">Sarah Johnson</td>
+
+                                        <!-- Date de dernière mise à jour -->
+                                        <td th:text="${#temporals.format(ticket.updatedAt, 'yyyy-MM-dd')}">2025-05-18</td>
+
+                                        <!-- Bouton d'action -->
+                                        <td>
+                                            <button type="button" class="btn btn-info btn-sm view-details-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#ticketDetailsModal"
+                                                    th:attr="data-ticket-id=${ticket.ticketId}">
+                                                <i class="bi bi-eye"></i> View
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Message si aucun ticket n'est trouvé -->
+                                    <tr th:if="${#lists.isEmpty(tickets)}">
+                                        <td colspan="7" class="text-center">No tickets assigned to you.</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+
+                            <!-- Other tabs content would go here -->
+                            <div class="tab-pane fade" id="active" role="tabpanel">
+                                <div class="alert alert-info mb-3">
+                                    <i class="bi bi-info-circle me-2"></i> Showing tickets with Active or In Progress status.
                                 </div>
+                                <!-- Active tickets would be listed here -->
+                            </div>
+
+                            <div class="tab-pane fade" id="pending" role="tabpanel">
+                                <div class="alert alert-warning mb-3">
+                                    <i class="bi bi-exclamation-triangle me-2"></i> Showing tickets awaiting further action.
+                                </div>
+                                <!-- Pending tickets would be listed here -->
+                            </div>
+
+                            <div class="tab-pane fade" id="completed" role="tabpanel">
+                                <div class="alert alert-success mb-3">
+                                    <i class="bi bi-check-circle me-2"></i> Showing tickets that have been resolved.
+                                </div>
+                                <!-- Completed tickets would be listed here -->
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<!-- Ticket Details Modal -->
+<div class="modal fade" id="ticketDetailsModal" tabindex="-1" aria-labelledby="ticketDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ticketDetailsModalLabel">Ticket #<span id="detail-ticket-id">1001</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <!-- Ticket Information -->
+                        <h4 id="detail-ticket-title">Unable to access email account</h4>
+                        <div class="mb-3 mt-3">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <span class="badge badge-open" id="detail-ticket-status">Open</span>
+                                    <span class="badge badge-high" id="detail-ticket-priority">High</span>
+                                    <span class="badge bg-secondary" id="detail-ticket-type">Incident</span>
+                                </div>
+                                <div>
+                                    Created: <span id="detail-ticket-created">23 Mar 2025, 10:15 AM</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <h5>Description</h5>
+                            <p id="detail-ticket-description">I cannot access my email account since this morning. I've tried restarting my computer and resetting my password, but I still get an "invalid credentials" error message. This is impacting my ability to communicate with clients.</p>
+                        </div>
+
+                        <!-- Comments Section -->
+                        <div class="card mb-3 shadow-sm">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Comments</h5>
+                                <span class="badge bg-primary rounded-pill">3</span>
+                            </div>
+                            <div class="card-body">
+                                <div id="comments-list">
+                                    <!-- Les commentaires seront insérés ici par JavaScript -->
+                                </div>
+                                <div class="mt-4">
+                                    <form id="add-comment-form">
+                                        <div class="mb-3">
+                                            <label for="comment-text" class="form-label">Add Comment</label>
+                                            <textarea class="form-control" id="comment-text" rows="3" required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Post Comment</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <!-- Ticket Details Sidebar -->
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Ticket Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <p class="mb-2"><strong>Created by:</strong></p>
+                                    <div class="d-flex align-items-center" id="detail-created-by">
+                                        <div class="avatar bg-primary me-2">JD</div>
+                                        <span>John Doe</span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="mb-2"><strong>Assigned to:</strong></p>
+                                    <div class="d-flex align-items-center" id="detail-assigned-to">
+                                        <span class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>Unassigned</span>
+                                    </div>
+                                </div>
+                                <p><strong>Last updated:</strong> <span id="detail-updated-at">23 Mar 2025, 11:05 AM</span></p>
+
+                                <!-- Ticket Management Actions -->
+                                <hr>
+                                <h6>Ticket Actions</h6>
+                                <div class="mb-3">
+                                    <label for="update-status" class="form-label">Update Status</label>
+                                    <select class="form-select" id="update-status">
+                                        <option value="1" selected>Open</option>
+                                        <option value="2">In Progress</option>
+                                        <option value="3">Resolved</option>
+                                        <option value="4">Closed</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="update-priority" class="form-label">Update Priority</label>
+                                    <select class="form-select" id="update-priority">
+                                        <option value="1">Low</option>
+                                        <option value="2">Medium</option>
+                                        <option value="3" selected>High</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3 d-grid">
+                                    <button type="button" class="btn btn-success" id="update-ticket-btn">
+                                        <i class="bi bi-save me-1"></i> Update Ticket
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ticket History -->
+                        <div class="card mt-3 shadow-sm">
+                            <div class="card-header bg-white">
+                                <h5 class="mb-0">Ticket History</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush" id="ticket-history">
+                                    <!-- L'historique sera inséré ici par JavaScript -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -490,6 +573,332 @@
     </div>
 </div>
 
+
+
+
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        const ticketDetailsModal = document.getElementById('ticketDetailsModal');
+        if (!ticketDetailsModal) return;
+
+        // =========================================================================
+        // FONCTION POUR REMPLIR LA MODALE AVEC LES DONNÉES DU TICKET
+        // =========================================================================
+        function populateModal(data) {
+            // En-tête et titre
+            document.getElementById('detail-ticket-id').textContent = data.ticketId;
+            document.getElementById('detail-ticket-title').textContent = data.title;
+            document.getElementById('detail-ticket-created').textContent = data.createdAt;
+
+            // Badges de statut, priorité et type
+            const statusBadge = document.getElementById('detail-ticket-status');
+            statusBadge.textContent = data.status;
+            statusBadge.className = 'badge ' + data.statusClass;
+
+            const priorityBadge = document.getElementById('detail-ticket-priority');
+            priorityBadge.textContent = data.priority;
+            priorityBadge.className = 'badge ' + data.priorityClass;
+
+            document.getElementById('detail-ticket-type').textContent = data.type;
+
+            // Description
+            document.getElementById('detail-ticket-description').textContent = data.description;
+
+            // Informations de la barre latérale
+            document.getElementById('detail-updated-at').textContent = data.updatedAt;
+
+            // Créateur
+            const createdByContainer = document.getElementById('detail-created-by');
+            if (data.createdBy) {
+                createdByContainer.innerHTML = `<div class="avatar bg-primary me-2">${data.createdBy.initials}</div><span>${data.createdBy.fullName}</span>`;
+            } else {
+                createdByContainer.innerHTML = '<span>N/A</span>';
+            }
+
+            // Technicien assigné
+            const assignedToContainer = document.getElementById('detail-assigned-to');
+            if (data.assignedTo) {
+                assignedToContainer.innerHTML = `<div class="avatar bg-info me-2">${data.assignedTo.initials}</div><span>${data.assignedTo.fullName}</span>`;
+            } else {
+                assignedToContainer.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>Non assigné</span>`;
+            }
+
+            // Section des commentaires
+            const commentsList = document.getElementById('comments-list');
+            commentsList.innerHTML = '';
+            const commentBadge = document.querySelector('#ticketDetailsModal .card-header .badge');
+            if (data.comments && data.comments.length > 0) {
+                if (commentBadge) commentBadge.textContent = data.comments.length;
+                data.comments.forEach(comment => {
+                    const commentHtml = `
+                        <div class="comment-container">
+                            <div class="comment-header">
+                                <div class="comment-user">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar bg-secondary me-2" style="width: 24px; height: 24px; font-size: 0.7rem;">${comment.authorInitials}</div>
+                                        ${comment.authorName}
+                                    </div>
+                                </div>
+                                <div class="comment-date">${comment.createdAt}</div>
+                            </div>
+                            <div class="comment-text">${comment.commentText}</div>
+                        </div>`;
+                    commentsList.insertAdjacentHTML('beforeend', commentHtml);
+                });
+            } else {
+                commentsList.innerHTML = '<p class="text-muted">Aucun commentaire pour ce ticket.</p>';
+                if (commentBadge) commentBadge.textContent = 0;
+            }
+
+            // Section de l'historique du ticket
+            const historyList = document.getElementById('ticket-history');
+            historyList.innerHTML = '';
+            if (data.history && data.history.length > 0) {
+                data.history.forEach(entry => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item px-0 border-0';
+                    const p = document.createElement('p');
+                    p.className = 'mb-1 fw-bold';
+                    p.textContent = entry.description;
+                    const small = document.createElement('small');
+                    small.className = 'text-muted';
+                    small.textContent = `By ${entry.author} • ${entry.timestamp}`;
+                    li.appendChild(p);
+                    li.appendChild(small);
+                    historyList.appendChild(li);
+                });
+            } else {
+                historyList.innerHTML = '<li class="list-group-item px-0 border-0 text-muted">No history available for this ticket.</li>';
+            }
+
+            // Pré-remplir les listes déroulantes de mise à jour
+            if (data.statusId) {
+                document.getElementById('update-status').value = data.statusId;
+            }
+            if (data.priorityId) {
+                document.getElementById('update-priority').value = data.priorityId;
+            }
+
+            // Stocker l'ID du ticket sur le bouton "Update" pour un accès facile
+            const updateBtn = document.getElementById('update-ticket-btn');
+            updateBtn.dataset.ticketId = data.ticketId;
+        }
+
+        // =========================================================================
+        // FONCTION POUR AFFICHER UN ÉTAT DE CHARGEMENT
+        // =========================================================================
+        function showLoadingState() {
+            document.getElementById('detail-ticket-title').textContent = 'Chargement...';
+            document.getElementById('detail-ticket-description').innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div>';
+            document.getElementById('comments-list').innerHTML = '';
+            const historyList = document.getElementById('ticket-history');
+            if (historyList) {
+                historyList.innerHTML = '';
+            }
+        }
+
+        // =========================================================================
+        // ÉCOUTEUR D'ÉVÉNEMENT POUR L'OUVERTURE DE LA MODALE
+        // =========================================================================
+        ticketDetailsModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const ticketId = button.getAttribute('data-ticket-id');
+
+            showLoadingState();
+
+            fetch(`/api/tickets/${ticketId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ticket non trouvé ou erreur serveur.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    populateModal(data);
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des détails du ticket:', error);
+                    document.getElementById('detail-ticket-title').textContent = 'Erreur';
+                    document.getElementById('detail-ticket-description').textContent = 'Impossible de charger les détails du ticket.';
+                });
+        });
+
+        // =========================================================================
+        // ÉCOUTEUR D'ÉVÉNEMENT POUR LE CLIC SUR LE BOUTON "UPDATE TICKET"
+        // =========================================================================
+        document.getElementById('update-ticket-btn').addEventListener('click', function() {
+            const updateBtn = this;
+            const ticketId = updateBtn.dataset.ticketId;
+
+            if (!ticketId) {
+                alert('Error: Ticket ID not found. Cannot update.');
+                return;
+            }
+
+            const statusId = document.getElementById('update-status').value;
+            const priorityId = document.getElementById('update-priority').value;
+
+            // Préparer le corps de la requête
+            const requestBody = {
+                statusId: parseInt(statusId),
+                priorityId: parseInt(priorityId)
+            };
+
+            // ================== MODIFICATION POUR CSRF ==================
+            // Récupérer le token et le nom de l'en-tête depuis les balises meta
+            const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+            // ============================================================
+
+
+            // Animer le bouton pour montrer que quelque chose se passe
+            updateBtn.disabled = true;
+            updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+
+            // Envoyer la requête à l'API
+            fetch(`/api/tickets/${ticketId}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // ================== MODIFICATION POUR CSRF ==================
+                    // Ajouter le token CSRF à l'en-tête de la requête
+                    [header]: token
+                    // ============================================================
+                },
+                body: JSON.stringify(requestBody)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // Si le serveur renvoie une erreur, on essaie de lire le message et on le propage
+                    return response.text().then(text => { throw new Error(text || 'Update failed due to a server error.') });
+                }
+                return response.text();
+            })
+            .then(successMessage => {
+                console.log(successMessage); // Affiche "Ticket updated successfully."
+
+                // Fermer la modale
+                const modalInstance = bootstrap.Modal.getInstance(ticketDetailsModal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+
+                // Forcer le rechargement de la page pour voir les changements dans le tableau
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error updating ticket:', error);
+                alert(`Update failed: ${error.message}`);
+            })
+            .finally(() => {
+                // S'assurer de réactiver le bouton, surtout en cas d'erreur
+                updateBtn.disabled = false;
+                updateBtn.innerHTML = '<i class="bi bi-save me-1"></i> Update Ticket';
+            });
+        });
+
+        // =========================================================================
+    // ÉCOUTEUR D'ÉVÉNEMENT POUR L'AJOUT D'UN COMMENTAIRE
+    // =========================================================================
+    const addCommentForm = document.getElementById('add-comment-form');
+    addCommentForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Empêche le rechargement de la page par le formulaire
+
+        const commentTextarea = document.getElementById('comment-text');
+        const commentText = commentTextarea.value.trim();
+        const ticketId = document.getElementById('update-ticket-btn').dataset.ticketId; // On récupère l'ID du ticket stocké sur le bouton Update
+
+        if (!commentText) {
+            alert('Comment cannot be empty.');
+            return;
+        }
+
+        if (!ticketId) {
+            alert('Error: Ticket ID is missing.');
+            return;
+        }
+
+        const submitButton = this.querySelector('button[type="submit"]');
+
+        // Préparer le corps de la requête
+        const requestBody = {
+            commentText: commentText
+        };
+
+        // Récupérer le token CSRF
+        const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        // Animer le bouton
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Posting...';
+
+        // Envoyer la requête
+        fetch(`/api/tickets/${ticketId}/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [header]: token
+            },
+            body: JSON.stringify(requestBody)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text || 'Failed to post comment.') });
+            }
+            return response.json(); // On attend le TicketDetailDTO mis à jour
+        })
+        .then(updatedTicketData => {
+            // SUCCÈS !
+            console.log('Comment posted successfully.');
+
+            // Vider le champ de texte
+            commentTextarea.value = '';
+
+            // Mettre à jour dynamiquement la modale avec les nouvelles données
+            // sans recharger toute la page !
+            populateModal(updatedTicketData);
+        })
+        .catch(error => {
+            console.error('Error posting comment:', error);
+            alert(`Error: ${error.message}`);
+        })
+        .finally(() => {
+            // Réactiver le bouton
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Post Comment';
+        });
+    });
+
+});
+</script>
+<script>
+    document.getElementById('logout-btn').addEventListener('click', function(event) {
+        event.preventDefault();
+        if (confirm("Are you sure you want to log out?")) {
+            window.location.href = "/logout";
+        }
+    });
+</script>
+<!-- CSS pour les badges (à ajouter dans votre fichier CSS principal ou dans un <style> dans le <head>) -->
+<style>
+    .badge-open { background-color: #0d6efd; color: white; }
+    .badge-in-progress { background-color: #ffc107; color: black; }
+    .badge-resolved { background-color: #198754; color: white; }
+    .badge-closed { background-color: #6c757d; color: white; }
+    .badge-low { background-color: #0dcaf0; color: black; }
+    .badge-medium { background-color: #ffc107; color: black; }
+    .badge-high { background-color: #dc3545; color: white; }
+
+    .comment-container { border-bottom: 1px solid #e9ecef; padding-bottom: 1rem; margin-bottom: 1rem; }
+    .comment-container:last-child { border-bottom: none; margin-bottom: 0; }
+    .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.875rem; }
+    .comment-user { font-weight: 600; }
+    .comment-date { color: #6c757d; }
+    .comment-text { white-space: pre-wrap; word-wrap: break-word; } /* Pour respecter les sauts de ligne */
+    .avatar { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; color: white; font-weight: 600; }
+</style>
 </body>
 </html>
